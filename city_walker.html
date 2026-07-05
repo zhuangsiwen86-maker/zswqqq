@@ -1,0 +1,1613 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>随机城市云漫步器</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --text: #ffffff;
+            --text-muted: rgba(255,255,255,0.7);
+            --card: rgba(0,0,0,0.55);
+            --border: rgba(255,255,255,0.12);
+        }
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: #0f0f0f;
+            color: #fff;
+            -webkit-tap-highlight-color: transparent;
+        }
+        #bgImage {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            object-fit: cover;
+            z-index: 0;
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out;
+        }
+        #bgImage.loaded { opacity: 1; }
+        #bgOverlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.15), rgba(0,0,0,0.7));
+            z-index: 1;
+        }
+        #effectCanvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 2;
+            pointer-events: none;
+        }
+        .content {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 1.5rem;
+            padding-bottom: 160px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        header {
+            text-align: center;
+            opacity: 0;
+            animation: fadeInDown 1s ease-out 0.3s forwards;
+            padding: 1rem 0;
+        }
+        header h1 {
+            font-size: 2rem;
+            font-weight: 300;
+            letter-spacing: 6px;
+            margin-bottom: 0.3rem;
+        }
+        header p {
+            font-size: 0.85rem;
+            opacity: 0.5;
+            letter-spacing: 2px;
+        }
+        .city-card {
+            background: var(--card);
+            backdrop-filter: blur(30px);
+            border: 1px solid var(--border);
+            border-radius: 28px;
+            overflow: hidden;
+            opacity: 0;
+            animation: fadeInUp 1s ease-out 0.6s forwards;
+            max-width: 900px;
+            margin: 0 auto 200px;
+            display: flex;
+            flex-direction: column;
+            max-height: calc(100vh - 280px);
+        }
+        .card-header {
+            padding: 2rem;
+            background: linear-gradient(135deg, rgba(251,191,36,0.12), rgba(16,185,129,0.08), rgba(6,182,212,0.06));
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .weather-icon {
+            font-size: 2.2rem;
+            margin-bottom: 0.75rem;
+        }
+        .city-name {
+            font-size: 3.5rem;
+            font-weight: 200;
+            letter-spacing: 3px;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #fff, rgba(255,255,255,0.5));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .city-subtitle {
+            font-size: 1rem;
+            opacity: 0.6;
+            margin-bottom: 1.25rem;
+            font-weight: 300;
+        }
+        .city-meta {
+            display: flex;
+            justify-content: center;
+            gap: 2.5rem;
+            flex-wrap: wrap;
+        }
+        .meta-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+        }
+        .meta-label {
+            font-size: 0.7rem;
+            opacity: 0.45;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .meta-value {
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        .card-body {
+            padding: 2rem;
+            overflow-y: auto;
+            flex: 1;
+        }
+        .card-body::-webkit-scrollbar { width: 4px; }
+        .card-body::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 2px; }
+        .card-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 2px; }
+        
+        .city-mood {
+            font-size: 1.15rem;
+            line-height: 1.7;
+            font-weight: 300;
+            font-style: italic;
+            opacity: 0.75;
+            text-align: center;
+            margin-bottom: 1.75rem;
+            padding: 1rem;
+        }
+        .city-desc {
+            font-size: 1rem;
+            line-height: 1.8;
+            opacity: 0.85;
+            margin-bottom: 1.75rem;
+            text-align: justify;
+            padding: 1.25rem;
+            background: rgba(255,255,255,0.04);
+            border-radius: 16px;
+            border-left: 3px solid rgba(251,191,36,0.5);
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.25rem;
+            margin-bottom: 1.75rem;
+        }
+        .info-card {
+            background: rgba(255,255,255,0.04);
+            border-radius: 16px;
+            padding: 1.25rem;
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .info-card h4 {
+            font-size: 0.85rem;
+            opacity: 0.5;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.4rem 0;
+            font-size: 0.9rem;
+            opacity: 0.85;
+        }
+        .info-item .icon { font-size: 1.1rem; }
+        
+        .street-scene {
+            background: rgba(6,182,212,0.08);
+            border: 1px solid rgba(6,182,212,0.15);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.75rem;
+            display: flex;
+            gap: 1.25rem;
+        }
+        .street-scene .icon {
+            font-size: 2rem;
+            flex-shrink: 0;
+        }
+        .street-scene .text {
+            font-size: 0.95rem;
+            line-height: 1.7;
+            opacity: 0.85;
+        }
+        
+        .architecture-list {
+            background: rgba(124,58,237,0.08);
+            border: 1px solid rgba(124,58,237,0.15);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.75rem;
+        }
+        .architecture-list h4 {
+            font-size: 0.85rem;
+            opacity: 0.5;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .arch-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .arch-item:last-child { border-bottom: none; }
+        .arch-item .icon { font-size: 1.5rem; flex-shrink: 0; }
+        .arch-item .info .name { font-size: 1rem; opacity: 0.95; margin-bottom: 0.35rem; font-weight: 500; }
+        .arch-item .info .desc { font-size: 0.85rem; opacity: 0.65; line-height: 1.6; }
+        
+        .features-section {
+            margin-bottom: 1.75rem;
+        }
+        .features-section h4 {
+            font-size: 0.85rem;
+            opacity: 0.5;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .features-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+        .feature-tag {
+            padding: 0.5rem 1.25rem;
+            background: linear-gradient(135deg, rgba(251,191,36,0.2), rgba(16,185,129,0.1));
+            border: 1px solid rgba(251,191,36,0.2);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            opacity: 0.85;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
+        }
+        .feature-tag:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, rgba(251,191,36,0.25), rgba(16,185,129,0.15));
+        }
+        
+        .culture-tip {
+            background: rgba(236,72,153,0.08);
+            border: 1px solid rgba(236,72,153,0.15);
+            border-radius: 16px;
+            padding: 1.25rem;
+            margin-bottom: 1.75rem;
+        }
+        .culture-tip h4 {
+            font-size: 0.85rem;
+            opacity: 0.5;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .culture-tip p {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            opacity: 0.85;
+        }
+        
+        .greeting-box {
+            background: linear-gradient(135deg, rgba(251,191,36,0.12), rgba(16,185,129,0.08));
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            border: 1px solid rgba(251,191,36,0.2);
+        }
+        .greeting-box .lang {
+            font-size: 0.75rem;
+            opacity: 0.45;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+        .greeting-box .text {
+            font-size: 1.4rem;
+            font-weight: 300;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, #fcd34d, rgba(251,191,36,0.6));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .greeting-box .trans {
+            font-size: 0.9rem;
+            opacity: 0.6;
+            margin-top: 0.5rem;
+        }
+        
+        footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            gap: 1.25rem;
+            opacity: 0;
+            animation: fadeIn 1s ease-out 1s forwards;
+            padding: 1rem 1.5rem;
+            padding-bottom: max(1rem, env(safe-area-inset-bottom) + 40px);
+            background: linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0.3), transparent);
+            z-index: 100;
+            touch-action: manipulation;
+        }
+        .control-btn {
+            padding: 0.8rem 1.75rem;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 30px;
+            color: #fff;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            touch-action: manipulation;
+        }
+        .control-btn:hover {
+            background: rgba(255,255,255,0.15);
+            border-color: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+        .control-btn:active {
+            transform: scale(0.95);
+            background: rgba(255,255,255,0.2);
+        }
+        .control-btn.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        
+        .progress-bar {
+            position: fixed;
+            bottom: 0; left: 0;
+            width: 100%;
+            height: 3px;
+            background: rgba(255,255,255,0.08);
+            z-index: 99;
+        }
+        .progress-bar-inner {
+            height: 100%;
+            background: linear-gradient(90deg, rgba(251,191,36,0.8), rgba(16,185,129,0.5));
+            transition: width 0.1s linear;
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: #0f0f0f;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
+        }
+        .loading-spinner {
+            width: 48px; height: 48px;
+            border: 2px solid rgba(255,255,255,0.1);
+            border-top-color: rgba(251,191,36,0.8);
+            border-radius: 50%;
+            animation: spin 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+            box-shadow: 0 0 20px rgba(251,191,36,0.15);
+        }
+        .loading-text {
+            font-size: 0.9rem;
+            opacity: 0.5;
+            letter-spacing: 2px;
+        }
+        
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-25px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(35px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .volume-control {
+            position: fixed;
+            right: 1.5rem;
+            bottom: 1.5rem;
+            z-index: 10;
+            opacity: 0.5;
+            transition: opacity 0.3s;
+        }
+        .volume-control:hover { opacity: 1; }
+        .volume-control input {
+            width: 90px;
+            height: 3px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 2px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        .volume-control input::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 12px;
+            height: 12px;
+            background: rgba(251,191,36,0.8);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        .sound-toggle {
+            position: fixed;
+            right: 1.5rem;
+            top: 1.5rem;
+            z-index: 100;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.9rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+        }
+        .sound-toggle:hover {
+            background: rgba(255,255,255,0.08);
+            border-color: rgba(255,255,255,0.3);
+        }
+        
+        @media (max-width: 768px) {
+            .info-grid { grid-template-columns: 1fr 1fr; }
+            .city-name { font-size: 2.2rem; }
+            .card-body { padding: 1.25rem; }
+            .content { padding: 1rem; padding-top: max(1rem, env(safe-area-inset-top)); padding-bottom: 180px; }
+            .street-scene { flex-direction: column; text-align: center; }
+            .card-header { padding: 1.5rem; }
+            .weather-icon { font-size: 1.8rem; }
+            .city-meta { gap: 1.5rem; }
+            .control-btn { padding: 0.7rem 1.25rem; font-size: 0.85rem; }
+            .city-card { max-height: calc(100vh - 260px); margin-bottom: 200px; }
+            footer { gap: 0.75rem; padding-bottom: max(1rem, env(safe-area-inset-bottom) + 50px); padding-left: 1rem; padding-right: 1rem; }
+        }
+        @media (max-width: 500px) {
+            .info-grid { grid-template-columns: 1fr; }
+            .city-name { font-size: 1.8rem; }
+            .city-mood { font-size: 1rem; }
+            .card-header { padding: 1.25rem; }
+            .card-body { padding: 1rem; }
+            .weather-icon { font-size: 1.5rem; }
+            .city-subtitle { font-size: 0.9rem; }
+            .meta-value { font-size: 0.9rem; }
+            .feature-tag { padding: 0.4rem 1rem; font-size: 0.8rem; }
+            .control-btn { padding: 0.6rem 1rem; font-size: 0.8rem; }
+            .content { padding-bottom: 200px; }
+            .city-card { max-height: calc(100vh - 280px); margin-bottom: 220px; }
+            footer { gap: 0.5rem; padding-bottom: max(1rem, env(safe-area-inset-bottom) + 60px); padding-left: 0.75rem; padding-right: 0.75rem; }
+            .sound-toggle { width: 40px; height: 40px; font-size: 1rem; right: 1rem; top: max(1rem, env(safe-area-inset-top)); }
+            .volume-control { right: 1rem; bottom: max(6rem, env(safe-area-inset-bottom) + 50px); }
+            .progress-bar { height: 4px; }
+            .loading-spinner { width: 40px; height: 40px; }
+            .loading-text { font-size: 0.8rem; }
+        }
+        @media (max-width: 375px) {
+            .city-name { font-size: 1.6rem; }
+            .weather-icon { font-size: 1.3rem; }
+            .control-btn { padding: 0.5rem 0.8rem; font-size: 0.75rem; }
+            .feature-tag { padding: 0.35rem 0.85rem; font-size: 0.75rem; }
+            .info-card { padding: 1rem; }
+            .arch-item { padding: 0.75rem 0; }
+            .greeting-box .text { font-size: 1.2rem; }
+            .content { padding-bottom: 220px; }
+            .city-card { max-height: calc(100vh - 300px); margin-bottom: 240px; }
+            footer { padding-bottom: max(1rem, env(safe-area-inset-bottom) + 70px); padding-left: 0.5rem; padding-right: 0.5rem; }
+        }
+        @media (orientation: landscape) and (max-width: 900px) {
+            .city-card { max-height: 75vh; margin-bottom: 120px; }
+            .content { padding: 0.75rem; }
+            .card-header { padding: 1rem; }
+            .card-body { padding: 1rem; }
+            .city-name { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">正在连接世界各地...</div>
+    </div>
+
+    <img id="bgImage" src="" alt="城市风景">
+    <div id="bgOverlay"></div>
+    <canvas id="effectCanvas"></canvas>
+
+    <div class="content">
+        <header>
+            <h1>云漫步</h1>
+            <p>CITY WALKER</p>
+        </header>
+
+        <div class="city-card" id="cityCard">
+            <div class="card-header">
+                <div class="weather-icon" id="weatherIcon">🌤️</div>
+                <div class="city-name" id="cityName">Tokyo</div>
+                <div class="city-subtitle" id="citySubtitle">东京 · 日本</div>
+                <div class="city-meta">
+                    <div class="meta-item">
+                        <span class="meta-label">当地时间</span>
+                        <span class="meta-value" id="localTime">00:00</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">温度</span>
+                        <span class="meta-value" id="localTemp">22°C</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">天气</span>
+                        <span class="meta-value" id="localWeather">晴朗</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <div class="city-mood" id="cityMood">"在霓虹灯下，每个人都是自己故事的主角"</div>
+                <div class="city-desc" id="cityDesc"></div>
+                
+                <div class="street-scene">
+                    <span class="icon">🌆</span>
+                    <span class="text" id="streetScene"></span>
+                </div>
+
+                <div class="info-grid">
+                    <div class="info-card">
+                        <h4>🏛️ 必去地标</h4>
+                        <div id="landmarksList"></div>
+                    </div>
+                    <div class="info-card">
+                        <h4>🍜 当地美食</h4>
+                        <div id="foodsList"></div>
+                    </div>
+                    <div class="info-card">
+                        <h4>🎭 文化特色</h4>
+                        <div id="cultureList"></div>
+                    </div>
+                </div>
+
+                <div class="architecture-list">
+                    <h4>🏰 知名建筑</h4>
+                    <div id="architectureList"></div>
+                </div>
+
+                <div class="features-section">
+                    <h4>✨ 城市特色</h4>
+                    <div class="features-tags" id="featuresTags"></div>
+                </div>
+
+                <div class="culture-tip">
+                    <h4>💡 趣闻</h4>
+                    <p id="cultureText"></p>
+                </div>
+
+                <div class="greeting-box">
+                    <div class="lang" id="greetingLang">日语</div>
+                    <div class="text" id="greetingText">こんにちは</div>
+                    <div class="trans" id="greetingTrans">你好</div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <button class="control-btn" id="btnPrev" onclick="prevCity()">◀ 上一站</button>
+            <button class="control-btn" id="btnRandom" onclick="randomCity()">🎲 随机漫游</button>
+            <button class="control-btn" id="btnNext" onclick="nextCity()">下一站 ▶</button>
+        </footer>
+    </div>
+
+    <div class="sound-toggle" id="soundToggle" onclick="toggleSound()">🔊</div>
+    <div class="volume-control">
+        <input type="range" id="volumeSlider" min="0" max="100" value="40">
+    </div>
+    <div class="progress-bar">
+        <div class="progress-bar-inner" id="progressBar"></div>
+    </div>
+
+    <script>
+        const cities = [
+            {
+                name: 'Tokyo', country: '日本', subtitle: '东京',
+                keyword: 'Tokyo street night neon city',
+                weather: 'night', season: 'autumn', temp: '18°C',
+                desc: '东京，日本的首都，一座充满未来感与传统韵味的城市。在这里，你可以在涩谷十字路口感受都市的脉搏，也可以在浅草寺体验千年的宁静。霓虹灯与樱花交织，构成了这座城市独特的魅力。',
+                mood: '在霓虹灯下，每个人都是自己故事的主角',
+                streetScene: '傍晚时分，涩谷的窄巷里居酒屋灯笼摇曳，上班族匆匆走过，便利店的暖光给寒冷的夜带来一丝温暖。秋叶散落街头，与霓虹灯的光芒交织成一幅迷人的画面。新宿的摩天大楼群在夜色中闪烁，仿佛置身于科幻世界。',
+                landmarks: [
+                    { name: '东京塔', icon: '🗼' },
+                    { name: '浅草寺', icon: '⛩️' },
+                    { name: '涩谷十字路口', icon: '🚦' }
+                ],
+                foods: [
+                    { name: '拉面', icon: '🍜' },
+                    { name: '寿司', icon: '🍣' },
+                    { name: '天妇罗', icon: '🍤' }
+                ],
+                culture: ['茶道', '和服', '动漫'],
+                architecture: [
+                    { name: '东京塔', desc: '红白相间的铁塔，模仿巴黎埃菲尔铁塔建造，高333米，是东京的象征地标，夜晚灯光璀璨，从塔顶可俯瞰整个东京市区。' },
+                    { name: '浅草寺雷门', desc: '东京最古老的寺庙之一，巨大的红色灯笼高悬于雷门之上，是日本传统文化的重要象征，仲见世商店街充满传统风情。' },
+                    { name: '晴空塔', desc: '日本最高的塔，高634米，拥有世界最高的展望台，塔身设计融合了传统"五重塔"的元素与现代技术。' }
+                ],
+                features: ['世界最准时电车', '自动贩卖机密度第一', '漫画文化发源地', '四季分明的美景', '夜生活丰富'],
+                funFact: '东京地铁系统极其准时，平均延误时间只有18秒。在地铁里，你几乎听不到任何人说话，这是一种独特的礼仪文化。',
+                greeting: { text: 'こんにちは', trans: '你好', lang: '日语' },
+                soundType: 'asian'
+            },
+            {
+                name: 'Paris', country: '法国', subtitle: '巴黎',
+                keyword: 'Paris street cafe Eiffel Tower sunset',
+                weather: 'sunny', season: 'spring', temp: '15°C',
+                desc: '巴黎，浪漫之都，艺术与时尚的殿堂。埃菲尔铁塔见证了无数爱情，卢浮宫收藏着人类文明的瑰宝，塞纳河畔的咖啡馆里飘散着哲学与文学的气息。',
+                mood: '塞纳河畔的微风，吹走所有的烦恼',
+                streetScene: '午后的玛黑区，咖啡馆露天座位上坐满了人，阳光透过梧桐树叶洒在鹅卵石街道上，艺术家在街头作画，空气中弥漫着咖啡和牛角面包的香气。远处传来手风琴的旋律，让人沉醉。',
+                landmarks: [
+                    { name: '埃菲尔铁塔', icon: '🗼' },
+                    { name: '卢浮宫', icon: '🏛️' },
+                    { name: '巴黎圣母院', icon: '⛪' }
+                ],
+                foods: [
+                    { name: '法式长棍', icon: '🥖' },
+                    { name: '马卡龙', icon: '🍬' },
+                    { name: '红酒炖牛肉', icon: '🍷' }
+                ],
+                culture: ['艺术', '咖啡', '时尚'],
+                architecture: [
+                    { name: '埃菲尔铁塔', desc: '巴黎的标志性建筑，高324米，由古斯塔夫·埃菲尔设计，每年吸引数百万游客，夜晚灯光闪烁如繁星，整点时会有璀璨的灯光秀。' },
+                    { name: '卢浮宫', desc: '世界最大的艺术博物馆，收藏了《蒙娜丽莎》等著名艺术品，其玻璃金字塔入口成为现代建筑的经典，原先是法国王宫。' },
+                    { name: '巴黎圣母院', desc: '哥特式建筑的巅峰之作，建于12世纪，拥有壮观的玫瑰花窗和飞扶壁，虽然经历火灾但仍在修复中。' }
+                ],
+                features: ['浪漫之都', '艺术殿堂', '时尚中心', '咖啡馆文化', '塞纳河风光'],
+                funFact: '巴黎有超过4000家咖啡馆，其中一些曾是海明威、萨特等名人的常去之地。巴黎人平均每天喝3杯咖啡。',
+                greeting: { text: 'Bonjour', trans: '你好', lang: '法语' },
+                soundType: 'european'
+            },
+            {
+                name: 'New York', country: '美国', subtitle: '纽约',
+                keyword: 'New York city skyline Times Square night',
+                weather: 'night', season: 'winter', temp: '8°C',
+                desc: '纽约，大苹果，一座永不眠的城市。时代广场的霓虹灯闪烁着梦想，中央公园提供了喧嚣中的宁静，自由女神像高举着火炬照亮希望。',
+                mood: '时代广场的喧嚣中，藏着无数梦想',
+                streetScene: '曼哈顿的街道永远繁忙，黄色出租车穿梭其间，街头艺人在地铁站口演奏爵士乐，行人步履匆匆却又各自沉浸在自己的世界里。冬季的寒风中，街头热狗摊冒着热气，百老汇的霓虹灯牌闪烁不停。',
+                landmarks: [
+                    { name: '自由女神像', icon: '🗽' },
+                    { name: '帝国大厦', icon: '🏢' },
+                    { name: '中央公园', icon: '🌳' }
+                ],
+                foods: [
+                    { name: '热狗', icon: '🌭' },
+                    { name: '披萨', icon: '🍕' },
+                    { name: '芝士蛋糕', icon: '🍰' }
+                ],
+                culture: ['百老汇', '爵士乐', '街头艺术'],
+                architecture: [
+                    { name: '帝国大厦', desc: '纽约的地标性摩天大楼，高381米，曾是世界最高建筑，在电影《金刚》中成为经典场景，顶层观景台可俯瞰曼哈顿全景。' },
+                    { name: '自由女神像', desc: '美国自由与民主的象征，由法国赠送，手持火炬和《独立宣言》，屹立在纽约港，内部可攀登至皇冠处。' },
+                    { name: '布鲁克林大桥', desc: '纽约最著名的桥梁之一，建于1883年，是世界上第一座钢铁斜拉桥，连接曼哈顿和布鲁克林，夜景尤其迷人。' }
+                ],
+                features: ['不夜城', '文化熔炉', '金融中心', '艺术之都', '百老汇剧院'],
+                funFact: '纽约市有超过800种语言被使用，是世界上语言最多样化的城市。中央公园比摩纳哥整个国家还要大。',
+                greeting: { text: 'Hello', trans: '你好', lang: '英语' },
+                soundType: 'urban'
+            },
+            {
+                name: 'Venice', country: '意大利', subtitle: '威尼斯',
+                keyword: 'Venice canal gondola sunset',
+                weather: 'sunny', season: 'summer', temp: '24°C',
+                desc: '威尼斯，水上之城，浪漫的代名词。贡多拉穿行在狭窄的运河之间，圣马可广场的鸽子飞舞，彩色的房屋倒映在水中如同一幅油画。',
+                mood: '水上之城，浪漫永不褪色',
+                streetScene: '黄昏时分，贡多拉在运河上划出优雅的弧线，船夫悠扬的歌声回荡在水面，彩色的房屋被夕阳染成金色，水面波光粼粼。远处传来教堂的钟声，仿佛时光倒流。',
+                landmarks: [
+                    { name: '圣马可广场', icon: '🏛️' },
+                    { name: '里亚托桥', icon: '🌉' },
+                    { name: '贡多拉', icon: '🚣' }
+                ],
+                foods: [
+                    { name: '墨鱼面', icon: '🍝' },
+                    { name: '提拉米苏', icon: '🍰' },
+                    { name: '意式浓缩咖啡', icon: '☕' }
+                ],
+                culture: ['狂欢节', '歌剧', '玻璃工艺'],
+                architecture: [
+                    { name: '圣马可大教堂', desc: '拜占庭风格的宏伟教堂，装饰着金色马赛克，是威尼斯最重要的宗教建筑，收藏了大量艺术珍品，曾是威尼斯共和国的象征。' },
+                    { name: '里亚托桥', desc: '威尼斯最著名的桥梁，横跨大运河，建于16世纪，是威尼斯的象征之一，桥上有许多商店和咖啡馆。' },
+                    { name: '总督宫', desc: '威尼斯共和国的政府所在地，哥特式建筑风格，内部装饰华丽，连接着叹息桥。' }
+                ],
+                features: ['水上之城', '浪漫之都', '艺术之城', '无车城市', '狂欢节'],
+                funFact: '威尼斯没有汽车，唯一的交通工具是船和步行，这座城市正在缓慢下沉，每年下沉约1-2毫米。',
+                greeting: { text: 'Ciao', trans: '你好', lang: '意大利语' },
+                soundType: 'european'
+            },
+            {
+                name: 'Santorini', country: '希腊', subtitle: '圣托里尼',
+                keyword: 'Santorini white buildings blue dome sunset',
+                weather: 'sunny', season: 'summer', temp: '28°C',
+                desc: '圣托里尼，爱琴海上的珍珠，蓝白相间的梦境。白色的房屋与蓝色的穹顶相互映衬，悬崖边的日落美得令人窒息，这里是世界上最浪漫的地方之一。',
+                mood: '蓝白相间的梦境，治愈一切',
+                streetScene: '伊亚小镇的悬崖步道上，白色的房屋依山而建，蓝色穹顶在阳光下闪闪发光，情侣们在日落观景台上等待着金色的夕阳沉入爱琴海。微风带着海水的气息，让人忘却一切烦恼。',
+                landmarks: [
+                    { name: '蓝顶教堂', icon: '⛪' },
+                    { name: '伊亚日落', icon: '🌅' },
+                    { name: '火山口', icon: '🌋' }
+                ],
+                foods: [
+                    { name: '希腊沙拉', icon: '🥗' },
+                    { name: 'Moussaka', icon: '🍲' },
+                    { name: '希腊酸奶', icon: '🥛' }
+                ],
+                culture: ['神话', '橄榄油', '葡萄酒'],
+                architecture: [
+                    { name: '蓝顶教堂', desc: '圣托里尼最具标志性的建筑，白色墙壁搭配蓝色穹顶，是希腊建筑风格的完美体现，成为无数明信片的主角，位于费拉小镇的最高点。' },
+                    { name: '伊亚小镇', desc: '以世界最美日落闻名，小镇建筑依悬崖而建，狭窄的街道两旁布满精品店和咖啡馆，日落时分整个小镇被金色笼罩。' },
+                    { name: '费拉小镇', desc: '圣托里尼的首府，建在火山口边缘，拥有壮丽的火山景观和日落景色，是游客必访之地。' }
+                ],
+                features: ['浪漫天堂', '火山岛', '蓝白建筑', '绝美日落', '爱琴海风光'],
+                funFact: '圣托里尼是一个火山岛，其独特的地貌是由公元前1600年的一次巨大火山喷发形成的，那次喷发可能是传说中亚特兰蒂斯沉没的原因。',
+                greeting: { text: 'Γεια σας', trans: '你好', lang: '希腊语' },
+                soundType: 'coastal'
+            },
+            {
+                name: 'Shanghai', country: '中国', subtitle: '上海',
+                keyword: 'Shanghai bund night skyline',
+                weather: 'night', season: 'autumn', temp: '20°C',
+                desc: '上海，东方巴黎，中国最国际化的城市。外滩的万国建筑博览群见证了百年沧桑，陆家嘴的摩天大楼展现着现代中国的活力，弄堂里的烟火气讲述着老上海的故事。',
+                mood: '外滩的灯火，见证百年沧桑',
+                streetScene: '傍晚的外滩，万国建筑博览群被灯光照亮，黄浦江面上游船穿梭，对岸陆家嘴的摩天大楼霓虹闪烁，老式有轨电车叮叮当当驶过街道。南京路上人来人往，老字号店铺飘出糕点的香气。',
+                landmarks: [
+                    { name: '外滩', icon: '🌉' },
+                    { name: '东方明珠', icon: '🗼' },
+                    { name: '豫园', icon: '🏮' }
+                ],
+                foods: [
+                    { name: '小笼包', icon: '🥟' },
+                    { name: '红烧肉', icon: '🍖' },
+                    { name: '生煎包', icon: '🥢' }
+                ],
+                culture: ['海派文化', '戏剧', '美食'],
+                architecture: [
+                    { name: '东方明珠塔', desc: '上海的标志性建筑，高468米，由11个球体串联而成，是亚洲最高的电视塔之一，可俯瞰整个上海，旋转餐厅提供360度景观。' },
+                    { name: '外滩建筑群', desc: '被誉为"万国建筑博览群"，汇集了哥特式、巴洛克式、新古典主义等多种风格的建筑，见证了上海的百年历史，包括和平饭店、汇丰银行等。' },
+                    { name: '上海中心大厦', desc: '上海最高的摩天大楼，高632米，是世界第二高楼，外形像一条盘旋上升的龙，顶层观景台可俯瞰浦东全景。' }
+                ],
+                features: ['东方巴黎', '金融中心', '美食天堂', '中西合璧', '夜上海'],
+                funFact: '上海是中国人口最多的城市，也是世界上最繁忙的港口之一。上海话是中国最有特色的方言之一。',
+                greeting: { text: '你好', trans: 'Hello', lang: '中文' },
+                soundType: 'asian'
+            },
+            {
+                name: 'Barcelona', country: '西班牙', subtitle: '巴塞罗那',
+                keyword: 'Barcelona street gaudi architecture',
+                weather: 'sunny', season: 'summer', temp: '25°C',
+                desc: '巴塞罗那，高迪之城，艺术与建筑的奇迹。圣家族大教堂仍在建造中，巴特罗之家的曲线令人惊叹，奎尔公园充满了童话般的色彩。',
+                mood: '高迪的魔幻世界，充满惊喜',
+                streetScene: '格拉西亚大街上，高迪的建筑让人目不暇接，露天市场里摆满了鲜艳的水果和鲜花，弗拉门戈舞者在广场上翩翩起舞，空气中充满热情与活力。兰布拉大道上街头艺人表演不断。',
+                landmarks: [
+                    { name: '圣家族大教堂', icon: '⛪' },
+                    { name: '巴特罗之家', icon: '🏠' },
+                    { name: '奎尔公园', icon: '🏞️' }
+                ],
+                foods: [
+                    { name: '西班牙海鲜饭', icon: '🍚' },
+                    { name: '塔帕斯', icon: '🍢' },
+                    { name: '西班牙火腿', icon: '🥓' }
+                ],
+                culture: ['弗拉门戈', '足球', '建筑艺术'],
+                architecture: [
+                    { name: '圣家族大教堂', desc: '安东尼·高迪的代表作，始建于1882年至今仍在建造中，预计2026年完工，以其独特的尖塔和彩色玻璃窗闻名于世，是世界上最壮观的教堂之一。' },
+                    { name: '巴特罗之家', desc: '高迪设计的公寓楼，外观如同海浪和鱼鳞，内部充满曲线和有机形态，被联合国教科文组织列为世界遗产，被称为"海上之家"。' },
+                    { name: '奎尔公园', desc: '高迪设计的城市公园，充满了童话般的色彩和曲线，著名的蜥蜴喷泉和马赛克长椅是公园的标志，可俯瞰巴塞罗那全景。' }
+                ],
+                features: ['高迪之城', '建筑艺术', '地中海风情', '热情奔放', '足球之都'],
+                funFact: '巴塞罗那是加泰罗尼亚的首府，拥有自己独特的语言和文化认同。巴塞罗那足球俱乐部是世界上最成功的足球俱乐部之一。',
+                greeting: { text: 'Hola', trans: '你好', lang: '西班牙语' },
+                soundType: 'european'
+            },
+            {
+                name: 'Bali', country: '印尼', subtitle: '巴厘岛',
+                keyword: 'Bali rice terraces sunrise tropical',
+                weather: 'sunny', season: 'rainy', temp: '28°C',
+                desc: '巴厘岛，众神之岛，热带天堂。梯田之上的日出令人屏息，乌布的艺术氛围浓厚，海滩的日落美得让人沉醉。这里是心灵疗愈的圣地。',
+                mood: '梯田之上，心灵回归自然',
+                streetScene: '清晨的乌布梯田，晨雾笼罩着绿色的稻田，农夫开始了一天的劳作，远处的火山若隐若现，空气中弥漫着热带植物的清香。寺庙的钟声从远处传来，让人内心平静。',
+                landmarks: [
+                    { name: '乌布梯田', icon: '🌾' },
+                    { name: 'Tanah Lot', icon: '⛰️' },
+                    { name: 'Seminyak海滩', icon: '🏖️' }
+                ],
+                foods: [
+                    { name: '印尼炒面', icon: '🍝' },
+                    { name: '沙嗲', icon: '🍢' },
+                    { name: '椰浆饭', icon: '🍚' }
+                ],
+                culture: ['印度教', '瑜伽', '木雕'],
+                architecture: [
+                    { name: 'Tanah Lot', desc: '建在海边岩石上的寺庙，涨潮时四周被海水环绕，是巴厘岛最著名的寺庙之一，日落时分景色尤为壮观，被认为是海神的居所。' },
+                    { name: '乌布皇宫', desc: '巴厘岛皇室的居所，虽然规模不大，但装饰精美，融合了巴厘岛传统建筑风格，每天有传统舞蹈表演，位于乌布市中心。' },
+                    { name: '德格拉朗梯田', desc: '巴厘岛最著名的梯田景观，层层叠叠的绿色稻田在阳光下闪闪发光，是摄影爱好者的天堂，附近有许多精品酒店。' }
+                ],
+                features: ['热带天堂', '心灵疗愈', '艺术之岛', '海滩度假', '瑜伽圣地'],
+                funFact: '巴厘岛人每天会在路边摆放精致的祭品，这是他们表达对神明敬意的方式。巴厘岛拥有超过20000座寺庙。',
+                greeting: { text: 'Selamat pagi', trans: '你好', lang: '印尼语' },
+                soundType: 'coastal'
+            },
+            {
+                name: 'Prague', country: '捷克', subtitle: '布拉格',
+                keyword: 'Prague old town square sunset castle',
+                weather: 'cloudy', season: 'autumn', temp: '10°C',
+                desc: '布拉格，金色的城市，中世纪浪漫的典范。查理大桥上的雕像诉说着历史，老城广场的天文钟见证了时光的流逝，布拉格城堡俯瞰着这座美丽的城市。',
+                mood: '金色的黄昏，浪漫的邂逅',
+                streetScene: '秋日的查理大桥，巴洛克式雕像在夕阳下披上金色，街头艺人演奏着悠扬的小提琴，伏尔塔瓦河静静流淌，远处的布拉格城堡在暮色中若隐若现。老城广场上的天文钟敲响整点。',
+                landmarks: [
+                    { name: '查理大桥', icon: '🌉' },
+                    { name: '老城广场', icon: '🏛️' },
+                    { name: '布拉格城堡', icon: '🏰' }
+                ],
+                foods: [
+                    { name: '烤猪肘', icon: '🍖' },
+                    { name: '捷克饺子', icon: '🥟' },
+                    { name: '捷克啤酒', icon: '🍺' }
+                ],
+                culture: ['音乐', '文学', '啤酒'],
+                architecture: [
+                    { name: '查理大桥', desc: '欧洲最美丽的桥梁之一，建于14世纪，桥上装饰着30座巴洛克式雕像，是布拉格的象征，连接老城区和小城区。' },
+                    { name: '布拉格城堡', desc: '世界上最大的古城堡，占地7万平方米，包含宫殿、教堂和塔楼，可俯瞰整个布拉格，圣维特大教堂是其核心建筑。' },
+                    { name: '老城广场天文钟', desc: '建于15世纪，是世界上最古老的天文钟之一，整点时会有12使徒的木偶表演，吸引大量游客观看。' }
+                ],
+                features: ['金色之城', '中世纪风情', '音乐之都', '啤酒之国', '童话般的街道'],
+                funFact: '布拉格是莫扎特、德沃夏克等音乐家的故乡，每年举办多个国际音乐节。捷克人是世界上人均啤酒消费量最高的国家之一。',
+                greeting: { text: 'Ahoj', trans: '你好', lang: '捷克语' },
+                soundType: 'european'
+            },
+            {
+                name: 'Cape Town', country: '南非', subtitle: '开普敦',
+                keyword: 'Cape Town beach Table Mountain sunset',
+                weather: 'sunny', season: 'summer', temp: '22°C',
+                desc: '开普敦，非洲的天涯海角，山海之间的奇迹。桌山如同一座巨大的餐桌俯瞰着城市，好望角见证了大航海时代的传奇，罗本岛讲述着自由的故事。',
+                mood: '山海之间，找到内心的宁静',
+                streetScene: '傍晚的坎普斯湾海滩，白色的沙滩上人们享受着最后的阳光，桌山的轮廓在夕阳中变得柔和，海浪轻轻拍打着岸边。远处传来海鸥的叫声，空气中带着海水的咸味。',
+                landmarks: [
+                    { name: '桌山', icon: '⛰️' },
+                    { name: '好望角', icon: '🌊' },
+                    { name: '罗本岛', icon: '🏝️' }
+                ],
+                foods: [
+                    { name: '南非烤肉', icon: '🍢' },
+                    { name: 'Biltong', icon: '🥓' },
+                    { name: 'Malva布丁', icon: '🍮' }
+                ],
+                culture: ['葡萄酒', '野生动物', '多元文化'],
+                architecture: [
+                    { name: '桌山', desc: '开普敦的标志性山脉，因其平坦的山顶而得名，是世界自然遗产，可乘坐缆车登顶欣赏360度全景，山顶常被云雾笼罩。' },
+                    { name: '好望角灯塔', desc: '位于非洲大陆最南端的灯塔，是航海史上的重要地标，周围环绕着壮观的海岸线和野生动物保护区。' },
+                    { name: '罗本岛', desc: '曼德拉曾被关押27年的地方，现在是世界遗产和博物馆，讲述着南非种族隔离时期的历史和自由的故事。' }
+                ],
+                features: ['山海之间', '自然奇观', '多元文化', '葡萄酒之乡', '野生动物'],
+                funFact: '开普敦是世界上唯一一个同时拥有海洋、山脉和海滩的城市，被称为"世界最美城市"之一。开普敦附近有世界上最南端的葡萄酒产区。',
+                greeting: { text: 'Hallo', trans: '你好', lang: '南非荷兰语' },
+                soundType: 'coastal'
+            },
+            {
+                name: 'Amsterdam', country: '荷兰', subtitle: '阿姆斯特丹',
+                keyword: 'Amsterdam canal house boats tulips',
+                weather: 'cloudy', season: 'spring', temp: '12°C',
+                desc: '阿姆斯特丹，运河之城，自由与宽容的象征。运河交错如织，彩色的房屋倒映在水中，郁金香盛开的春天美得如诗如画。',
+                mood: '运河交错，生活慢下来',
+                streetScene: '春日的阿姆斯特丹，运河两岸的樱花盛开，小船在运河上缓缓划过，人们骑着自行车穿梭在狭窄的街道上，运河边的咖啡馆坐满了悠闲的人们。空气中弥漫着郁金香的芬芳。',
+                landmarks: [
+                    { name: '运河带', icon: '🚤' },
+                    { name: '梵高博物馆', icon: '🎨' },
+                    { name: '安妮之家', icon: '🏠' }
+                ],
+                foods: [
+                    { name: '荷兰松饼', icon: '🧇' },
+                    { name: '奶酪', icon: '🧀' },
+                    { name: '荷兰炸丸子', icon: '🥓' }
+                ],
+                culture: ['自行车', '郁金香', '艺术'],
+                architecture: [
+                    { name: '运河房屋', desc: '阿姆斯特丹运河两岸的彩色窄屋，独特的山墙设计和倾斜的屋顶是荷兰建筑的特色，许多房屋已有数百年历史，内部装饰精美。' },
+                    { name: '梵高博物馆', desc: '收藏了梵高最著名的作品，包括《向日葵》和《星夜》，是世界上最大的梵高作品收藏地，建筑本身也是现代艺术的典范。' },
+                    { name: '西教堂', desc: '阿姆斯特丹最高的教堂，建于17世纪，巴洛克风格，塔顶可俯瞰整个城市，是安妮·弗兰克在日记中提到的"那座教堂"。' }
+                ],
+                features: ['运河之城', '自行车王国', '自由之都', '艺术之城', '郁金香'],
+                funFact: '阿姆斯特丹有超过100公里的运河和1500座桥梁，骑自行车是最主要的交通方式，城市里有超过80万辆自行车。',
+                greeting: { text: 'Hallo', trans: '你好', lang: '荷兰语' },
+                soundType: 'european'
+            },
+            {
+                name: 'Kyoto', country: '日本', subtitle: '京都',
+                keyword: 'Kyoto temple cherry blossom garden spring',
+                weather: 'sunny', season: 'spring', temp: '16°C',
+                desc: '京都，日本的古都，千年文化的传承之地。金阁寺倒映在镜湖中，伏见稻荷大社的千本鸟居蜿蜒向上，春天的樱花和秋天的红叶让这座城市如诗如画。',
+                mood: '樱花树下，时光仿佛静止',
+                streetScene: '清水寺门前的石阶上，穿和服的少女们轻盈走过，艺伎在祇园艺伎区的小巷中若隐若现，樱花花瓣随风飘落，铺满古朴的石板路。寺院的钟声悠远传来，让人心灵宁静。',
+                landmarks: [
+                    { name: '金阁寺', icon: '🏯' },
+                    { name: '伏见稻荷大社', icon: '⛩️' },
+                    { name: '清水寺', icon: '🏮' }
+                ],
+                foods: [
+                    { name: '京料理', icon: '🍱' },
+                    { name: '抹茶甜点', icon: '🍵' },
+                    { name: '汤豆腐', icon: '🥘' }
+                ],
+                culture: ['茶道', '花道', '能剧'],
+                architecture: [
+                    { name: '金阁寺', desc: '外墙贴满金箔的舍利殿，倒映在镜湖池中，金光闪闪，是日本室町时代的代表性建筑，被联合国教科文组织列为世界遗产。' },
+                    { name: '伏见稻荷大社', desc: '以千本鸟居闻名，朱红色的鸟居蜿蜒向上延伸，形成壮观的隧道，是日本最受欢迎的神社之一，据说狐狸是稻荷神的使者。' },
+                    { name: '清水寺', desc: '京都最古老的寺院，悬空的清水舞台是日本国宝级文物，春天樱花盛开时景色绝美。' }
+                ],
+                features: ['千年古都', '传统文化', '四季美景', '禅意空间', '世界遗产之都'],
+                funFact: '京都有超过1600座寺庙和神社，其中17处被列入世界文化遗产。每年春天，京都的樱花祭吸引数百万游客。',
+                greeting: { text: 'こんにちは', trans: '你好', lang: '日语' },
+                soundType: 'asian'
+            }
+        ];
+
+        const weatherIcons = { sunny: '☀️', cloudy: '☁️', rain: '🌧️', snow: '❄️', night: '🌙' };
+        const weatherNames = { sunny: '晴朗', cloudy: '多云', rain: '小雨', snow: '雪', night: '夜晚' };
+
+        let currentCityIndex = 0;
+        let isSoundOn = true;
+        let volume = 0.4;
+        let progressTimer = null;
+        let audioCtx = null;
+        let noiseNodes = [];
+        let gainNode = null;
+        let ambientInterval = null;
+        let timeInterval = null;
+        let effectParticles = [];
+        let effectCanvas, eCtx;
+        let width, height;
+        let isTransitioning = false;
+
+        function init() {
+            effectCanvas = document.getElementById('effectCanvas');
+            eCtx = effectCanvas.getContext('2d');
+            resize();
+            window.addEventListener('resize', resize);
+            
+            document.getElementById('volumeSlider').addEventListener('input', (e) => {
+                volume = e.target.value / 100;
+                updateVolume();
+            });
+
+            bindButtonEvents();
+            loadRandomCity();
+            startAutoSwitch();
+            animateParticles();
+        }
+
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            effectCanvas.width = width;
+            effectCanvas.height = height;
+        }
+
+        async function loadRandomCity() {
+            currentCityIndex = Math.floor(Math.random() * cities.length);
+            await loadCity(currentCityIndex);
+        }
+
+        async function loadCity(index) {
+            if (isTransitioning) return;
+            isTransitioning = true;
+            setButtonsDisabled(true);
+            
+            currentCityIndex = index;
+            const city = cities[currentCityIndex];
+            
+            const bgImg = document.getElementById('bgImage');
+            const cityCard = document.getElementById('cityCard');
+            
+            cityCard.style.opacity = '0';
+            cityCard.style.transform = 'translateY(10px) scale(0.99)';
+            cityCard.style.transition = 'opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+            
+            updateCityInfo(city);
+            updateParticles(city.weather);
+            updateSound(city);
+            resetProgress();
+            
+            const imgUrl = `https://picsum.photos/seed/${city.keyword}/1920/1080`;
+            
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.src = imgUrl;
+            
+            img.onload = () => {
+                bgImg.src = imgUrl;
+                bgImg.classList.add('loaded');
+                
+                setTimeout(() => {
+                    cityCard.style.opacity = '1';
+                    cityCard.style.transform = 'translateY(0) scale(1)';
+                }, 100);
+                
+                setTimeout(() => {
+                    cityCard.style.transition = '';
+                    isTransitioning = false;
+                    setButtonsDisabled(false);
+                }, 500);
+                
+                document.getElementById('loadingOverlay').style.display = 'none';
+            };
+            
+            img.onerror = () => {
+                bgImg.src = `https://picsum.photos/seed/${city.name}/1920/1080`;
+                bgImg.onload = () => {
+                    bgImg.classList.add('loaded');
+                    setTimeout(() => {
+                        cityCard.style.opacity = '1';
+                        cityCard.style.transform = 'translateY(0) scale(1)';
+                    }, 100);
+                    setTimeout(() => {
+                        cityCard.style.transition = '';
+                        isTransitioning = false;
+                        setButtonsDisabled(false);
+                    }, 500);
+                };
+            };
+        }
+
+        function updateCityInfo(city) {
+            document.getElementById('cityName').textContent = city.name;
+            document.getElementById('citySubtitle').textContent = `${city.subtitle} · ${city.country}`;
+            document.getElementById('cityMood').textContent = `"${city.mood}"`;
+            document.getElementById('cityDesc').textContent = city.desc;
+            document.getElementById('streetScene').textContent = city.streetScene;
+            document.getElementById('localTemp').textContent = city.temp;
+            document.getElementById('localWeather').textContent = weatherNames[city.weather];
+            document.getElementById('weatherIcon').textContent = weatherIcons[city.weather];
+
+            const landmarksList = document.getElementById('landmarksList');
+            landmarksList.innerHTML = '';
+            city.landmarks.forEach(landmark => {
+                const el = document.createElement('div');
+                el.className = 'info-item';
+                el.innerHTML = `<span class="icon">${landmark.icon}</span>${landmark.name}`;
+                landmarksList.appendChild(el);
+            });
+
+            const foodsList = document.getElementById('foodsList');
+            foodsList.innerHTML = '';
+            city.foods.forEach(food => {
+                const el = document.createElement('div');
+                el.className = 'info-item';
+                el.innerHTML = `<span class="icon">${food.icon}</span>${food.name}`;
+                foodsList.appendChild(el);
+            });
+
+            const cultureList = document.getElementById('cultureList');
+            cultureList.innerHTML = '';
+            city.culture.forEach(c => {
+                const el = document.createElement('div');
+                el.className = 'info-item';
+                el.innerHTML = `<span class="icon">🎭</span>${c}`;
+                cultureList.appendChild(el);
+            });
+
+            const architectureList = document.getElementById('architectureList');
+            architectureList.innerHTML = '';
+            city.architecture.forEach(arch => {
+                const el = document.createElement('div');
+                el.className = 'arch-item';
+                el.innerHTML = `
+                    <span class="icon">🏛️</span>
+                    <div class="info">
+                        <div class="name">${arch.name}</div>
+                        <div class="desc">${arch.desc}</div>
+                    </div>
+                `;
+                architectureList.appendChild(el);
+            });
+
+            const featuresTags = document.getElementById('featuresTags');
+            featuresTags.innerHTML = '';
+            city.features.forEach(feature => {
+                const el = document.createElement('div');
+                el.className = 'feature-tag';
+                el.innerHTML = `<span>✨</span>${feature}`;
+                featuresTags.appendChild(el);
+            });
+
+            document.getElementById('cultureText').textContent = city.funFact;
+            document.getElementById('greetingText').textContent = city.greeting.text;
+            document.getElementById('greetingTrans').textContent = city.greeting.trans;
+            document.getElementById('greetingLang').textContent = city.greeting.lang;
+            
+            updateLocalTime(city);
+        }
+
+        function updateLocalTime(city) {
+            if (timeInterval) clearInterval(timeInterval);
+            
+            const timeZones = {
+                '日本': 9, '法国': 2, '美国': -4, '英国': 1, '意大利': 2,
+                '澳大利亚': 10, '南非': 2, '希腊': 3, '荷兰': 2, '中国': 8,
+                '西班牙': 2, '阿联酋': 4, '捷克': 2, '印尼': 7, '土耳其': 3,
+                '俄罗斯': 3, '泰国': 7
+            };
+            
+            const offset = timeZones[city.country] || 8;
+            
+            function update() {
+                const now = new Date();
+                const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+                const local = new Date(utc + offset * 3600000);
+                const hours = local.getHours().toString().padStart(2, '0');
+                const minutes = local.getMinutes().toString().padStart(2, '0');
+                document.getElementById('localTime').textContent = `${hours}:${minutes}`;
+            }
+            
+            update();
+            timeInterval = setInterval(update, 60000);
+        }
+
+        function updateParticles(weather) {
+            effectParticles = [];
+            const count = weather === 'rain' ? 200 : weather === 'snow' ? 120 : weather === 'sunny' ? 50 : weather === 'night' ? 60 : 80;
+            
+            for (let i = 0; i < count; i++) {
+                effectParticles.push(createParticle(weather));
+            }
+        }
+
+        function createParticle(weather) {
+            const base = { x: Math.random() * width, y: Math.random() * height, opacity: Math.random() * 0.5 + 0.15 };
+            
+            switch (weather) {
+                case 'rain':
+                    return { ...base, vx: 0, vy: 10 + Math.random() * 6, length: 15 + Math.random() * 15, width: 0.8 };
+                case 'snow':
+                    return { ...base, vx: (Math.random() - 0.5) * 1.5, vy: 1 + Math.random() * 1.5, radius: 1.5 + Math.random() * 2.5, wobble: Math.random() * Math.PI * 2 };
+                case 'sunny':
+                    return { ...base, vx: (Math.random() - 0.5) * 0.3, vy: -0.2 - Math.random() * 0.3, radius: 0.8 + Math.random() * 1.5, type: 'sparkle' };
+                case 'cloudy':
+                    return { ...base, vx: 0.3 + Math.random() * 0.3, vy: (Math.random() - 0.5) * 0.15, radius: 80 + Math.random() * 100, type: 'cloud' };
+                default:
+                    return { ...base, vx: (Math.random() - 0.5) * 0.15, vy: -0.1 - Math.random() * 0.15, radius: 0.5 + Math.random() * 1, type: 'star' };
+            }
+        }
+
+        function animateParticles() {
+            eCtx.clearRect(0, 0, width, height);
+            
+            effectParticles.forEach(p => {
+                eCtx.globalAlpha = p.opacity;
+                
+                if (p.type === 'cloud') {
+                    eCtx.fillStyle = 'rgba(255,255,255,0.08)';
+                    eCtx.beginPath();
+                    eCtx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    eCtx.fill();
+                } else if (p.type === 'sparkle') {
+                    eCtx.fillStyle = '#fff';
+                    eCtx.beginPath();
+                    eCtx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    eCtx.fill();
+                } else if (p.type === 'star') {
+                    eCtx.fillStyle = '#fff';
+                    eCtx.beginPath();
+                    eCtx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    eCtx.fill();
+                } else if (p.length) {
+                    eCtx.strokeStyle = 'rgba(174, 194, 224, 0.6)';
+                    eCtx.lineWidth = p.width;
+                    eCtx.beginPath();
+                    eCtx.moveTo(p.x, p.y);
+                    eCtx.lineTo(p.x + p.vx, p.y + p.vy);
+                    eCtx.stroke();
+                } else {
+                    eCtx.fillStyle = '#fff';
+                    eCtx.beginPath();
+                    eCtx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    eCtx.fill();
+                }
+                
+                p.x += p.vx;
+                p.y += p.vy;
+                
+                if (p.wobble !== undefined) {
+                    p.wobble += 0.05;
+                    p.x += Math.sin(p.wobble) * 0.5;
+                }
+                
+                if (p.y > height || p.y < -p.radius * 2 || p.x > width + 50 || p.x < -50) {
+                    p.x = Math.random() * width;
+                    p.y = p.vy > 0 ? -20 : height + 20;
+                }
+            });
+            
+            requestAnimationFrame(animateParticles);
+        }
+
+        function updateSound(city) {
+            stopSound();
+            if (!isSoundOn) return;
+            
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            
+            createAmbientSound(city.soundType || 'general');
+        }
+
+        function createAmbientSound(type) {
+            gainNode = audioCtx.createGain();
+            gainNode.gain.value = volume * 0.25;
+            gainNode.connect(audioCtx.destination);
+
+            createBaseNoise(type);
+            createMidNoise(type);
+            createMelody(type);
+            
+            switch (type) {
+                case 'coastal':
+                    createOceanWaves();
+                    break;
+                case 'european':
+                    createBellSound();
+                    ambientInterval = setInterval(() => { if (Math.random() > 0.75) createBellSound(); }, 20000);
+                    break;
+                case 'asian':
+                    createWindChimes();
+                    ambientInterval = setInterval(() => { if (Math.random() > 0.65) createWindChimes(); }, 15000);
+                    break;
+                case 'winter':
+                    createWindSound();
+                    break;
+                default:
+                    createGeneralAmbience();
+            }
+        }
+
+        function createBaseNoise(type) {
+            const bufferSize = audioCtx.sampleRate * 2;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = (Math.random() * 2 - 1) * 0.3;
+            }
+            
+            const noise = audioCtx.createBufferSource();
+            noise.buffer = buffer;
+            noise.loop = true;
+            
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.value = type === 'coastal' ? 400 : type === 'asian' ? 300 : 500;
+            
+            const noiseGain = audioCtx.createGain();
+            noiseGain.gain.value = volume * 0.15;
+            
+            noise.connect(filter);
+            filter.connect(noiseGain);
+            noiseGain.connect(gainNode);
+            noise.start();
+            
+            noiseNodes.push({ node: noise, gain: noiseGain });
+        }
+
+        function createMidNoise(type) {
+            const bufferSize = audioCtx.sampleRate * 2;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = (Math.random() * 2 - 1) * 0.15;
+            }
+            
+            const noise = audioCtx.createBufferSource();
+            noise.buffer = buffer;
+            noise.loop = true;
+            
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.value = type === 'coastal' ? 800 : type === 'asian' ? 600 : 1000;
+            filter.Q.value = 0.5;
+            
+            const noiseGain = audioCtx.createGain();
+            noiseGain.gain.value = volume * 0.08;
+            
+            noise.connect(filter);
+            filter.connect(noiseGain);
+            noiseGain.connect(gainNode);
+            noise.start();
+            
+            noiseNodes.push({ node: noise, gain: noiseGain });
+        }
+
+        function createMelody(type) {
+            const pentatonicScale = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25];
+            const intervals = [3000, 4000, 5000, 6000];
+            
+            function playNote() {
+                const note = pentatonicScale[Math.floor(Math.random() * pentatonicScale.length)];
+                const osc = audioCtx.createOscillator();
+                const noteGain = audioCtx.createGain();
+                
+                osc.type = 'sine';
+                osc.frequency.value = note;
+                
+                noteGain.gain.setValueAtTime(0, audioCtx.currentTime);
+                noteGain.gain.linearRampToValueAtTime(volume * 0.06, audioCtx.currentTime + 0.1);
+                noteGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 2);
+                
+                osc.connect(noteGain);
+                noteGain.connect(gainNode);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 2);
+                
+                const nextInterval = intervals[Math.floor(Math.random() * intervals.length)];
+                setTimeout(playNote, nextInterval);
+            }
+            
+            setTimeout(playNote, 2000);
+        }
+
+        function createOceanWaves() {
+            const waveFreq = 0.1;
+            const waveGain = audioCtx.createGain();
+            waveGain.gain.value = volume * 0.12;
+            waveGain.connect(gainNode);
+            
+            const bufferSize = audioCtx.sampleRate * 2;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = (Math.random() * 2 - 1) * 0.2;
+            }
+            
+            const noise = audioCtx.createBufferSource();
+            noise.buffer = buffer;
+            noise.loop = true;
+            
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.value = 600;
+            
+            noise.connect(filter);
+            filter.connect(waveGain);
+            noise.start();
+            
+            noiseNodes.push({ node: noise, gain: waveGain });
+            
+            const lfo = audioCtx.createOscillator();
+            lfo.type = 'sine';
+            lfo.frequency.value = waveFreq;
+            
+            const lfoGain = audioCtx.createGain();
+            lfoGain.gain.value = 0.05;
+            
+            lfo.connect(lfoGain);
+            lfoGain.connect(waveGain.gain);
+            lfo.start();
+            
+            noiseNodes.push({ node: lfo, gain: lfoGain });
+        }
+
+        function createBellSound() {
+            const tones = [523.25, 659.25, 783.99, 1046.50];
+            tones.forEach((freq, i) => {
+                setTimeout(() => {
+                    const osc = audioCtx.createOscillator();
+                    const bellGain = audioCtx.createGain();
+                    
+                    osc.type = 'sine';
+                    osc.frequency.value = freq;
+                    
+                    bellGain.gain.setValueAtTime(0, audioCtx.currentTime);
+                    bellGain.gain.linearRampToValueAtTime(volume * 0.04, audioCtx.currentTime + 0.05);
+                    bellGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 3);
+                    
+                    osc.connect(bellGain);
+                    bellGain.connect(gainNode);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 3);
+                }, i * 50);
+            });
+        }
+
+        function createWindChimes() {
+            const chimeFreqs = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88];
+            const count = 3 + Math.floor(Math.random() * 3);
+            
+            for (let i = 0; i < count; i++) {
+                setTimeout(() => {
+                    const freq = chimeFreqs[Math.floor(Math.random() * chimeFreqs.length)];
+                    const osc = audioCtx.createOscillator();
+                    const chimeGain = audioCtx.createGain();
+                    
+                    osc.type = 'sine';
+                    osc.frequency.value = freq;
+                    
+                    chimeGain.gain.setValueAtTime(0, audioCtx.currentTime);
+                    chimeGain.gain.linearRampToValueAtTime(volume * 0.03, audioCtx.currentTime + 0.03);
+                    chimeGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 2.5);
+                    
+                    osc.connect(chimeGain);
+                    chimeGain.connect(gainNode);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 2.5);
+                }, i * 150 + Math.random() * 200);
+            }
+        }
+
+        function createWindSound() {
+            const bufferSize = audioCtx.sampleRate * 2;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = (Math.random() * 2 - 1) * 0.2;
+            }
+            
+            const noise = audioCtx.createBufferSource();
+            noise.buffer = buffer;
+            noise.loop = true;
+            
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.value = 400;
+            
+            const windGain = audioCtx.createGain();
+            windGain.gain.value = volume * 0.1;
+            windGain.connect(gainNode);
+            
+            noise.connect(filter);
+            filter.connect(windGain);
+            noise.start();
+            
+            noiseNodes.push({ node: noise, gain: windGain });
+        }
+
+        function createGeneralAmbience() {
+            const bufferSize = audioCtx.sampleRate * 2;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = (Math.random() * 2 - 1) * 0.1;
+            }
+            
+            const noise = audioCtx.createBufferSource();
+            noise.buffer = buffer;
+            noise.loop = true;
+            
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.value = 300;
+            
+            const ambienceGain = audioCtx.createGain();
+            ambienceGain.gain.value = volume * 0.08;
+            ambienceGain.connect(gainNode);
+            
+            noise.connect(filter);
+            filter.connect(ambienceGain);
+            noise.start();
+            
+            noiseNodes.push({ node: noise, gain: ambienceGain });
+        }
+
+        function stopSound() {
+            noiseNodes.forEach(n => {
+                try { n.node.stop(); } catch(e) {}
+                try { n.gain.disconnect(); } catch(e) {}
+            });
+            noiseNodes = [];
+            if (ambientInterval) {
+                clearInterval(ambientInterval);
+                ambientInterval = null;
+            }
+            if (gainNode) {
+                gainNode.disconnect();
+                gainNode = null;
+            }
+        }
+
+        function updateVolume() {
+            if (gainNode) {
+                gainNode.gain.value = volume * 0.25;
+            }
+        }
+
+        function toggleSound() {
+            isSoundOn = !isSoundOn;
+            document.getElementById('soundToggle').textContent = isSoundOn ? '🔊' : '🔇';
+            if (isSoundOn) {
+                updateSound(cities[currentCityIndex]);
+            } else {
+                stopSound();
+            }
+        }
+
+        function setButtonsDisabled(disabled) {
+            const buttons = document.querySelectorAll('.control-btn');
+            buttons.forEach(btn => {
+                if (disabled) {
+                    btn.classList.add('disabled');
+                } else {
+                    btn.classList.remove('disabled');
+                }
+            });
+        }
+
+        function bindButtonEvents() {
+            const buttons = document.querySelectorAll('.control-btn');
+            buttons.forEach(btn => {
+                btn.addEventListener('touchstart', function(e) {
+                    this.style.transform = 'scale(0.95)';
+                }, { passive: true });
+                
+                btn.addEventListener('touchend', function(e) {
+                    if (!this.classList.contains('disabled')) {
+                        this.style.transform = '';
+                    }
+                }, { passive: true });
+                
+                btn.addEventListener('touchcancel', function(e) {
+                    this.style.transform = '';
+                }, { passive: true });
+            });
+        }
+
+        function prevCity() {
+            if (isTransitioning) return;
+            currentCityIndex = (currentCityIndex - 1 + cities.length) % cities.length;
+            loadCity(currentCityIndex);
+        }
+
+        function nextCity() {
+            if (isTransitioning) return;
+            currentCityIndex = (currentCityIndex + 1) % cities.length;
+            loadCity(currentCityIndex);
+        }
+
+        function randomCity() {
+            if (isTransitioning) return;
+            let newIndex;
+            do {
+                newIndex = Math.floor(Math.random() * cities.length);
+            } while (newIndex === currentCityIndex);
+            loadCity(newIndex);
+        }
+
+        function startAutoSwitch() {
+            if (progressTimer) clearInterval(progressTimer);
+            
+            let progress = 0;
+            const duration = 60000;
+            
+            progressTimer = setInterval(() => {
+                progress += 100;
+                const percentage = Math.min((progress / duration) * 100, 100);
+                document.getElementById('progressBar').style.width = `${percentage}%`;
+                
+                if (progress >= duration) {
+                    nextCity();
+                }
+            }, 100);
+        }
+
+        function resetProgress() {
+            if (progressTimer) clearInterval(progressTimer);
+            document.getElementById('progressBar').style.width = '0%';
+            startAutoSwitch();
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
