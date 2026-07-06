@@ -8,338 +8,809 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
-            background: linear-gradient(135deg, #FFF0F5, #F0F8FF);
+            background: linear-gradient(135deg, #FFF5F7 0%, #F0F8FF 50%, #FFF5F7 100%);
             min-height: 100vh;
             color: #4A4A4A;
             overflow-x: hidden;
+            padding: 15px;
         }
-        .container { max-width: 1200px; margin: 0 auto; padding: 15px; }
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
         
-        header { text-align: center; padding: 20px; }
-        header h1 {
-            font-size: 1.8rem;
-            background: linear-gradient(135deg, #FF69B4, #4169E1);
+        .header-section {
+            background: white;
+            border-radius: 20px;
+            padding: 20px 25px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 20px rgba(255, 182, 193, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+        .header-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, rgba(255,182,193,0.2) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+        .header-section h1 {
+            font-size: 1.7rem;
+            background: linear-gradient(135deg, #FF6B9D, #6B9EFF);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 8px;
+            margin-bottom: 5px;
+            position: relative;
+            z-index: 1;
         }
-        header p { color: #888; font-size: 0.95rem; }
-        
-        .nav-tabs { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
-        .tab-btn {
-            padding: 10px 18px;
-            border: none;
-            border-radius: 25px;
-            background: rgba(255,255,255,0.7);
-            color: #888;
+        .header-section p {
+            color: #999;
             font-size: 0.85rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .nav-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .tab-btn {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.8rem;
             cursor: pointer;
             transition: all 0.3s;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #666;
         }
-        .tab-btn:hover, .tab-btn.active {
-            background: linear-gradient(135deg, #FFB6C1, #87CEEB);
+        .tab-btn:nth-child(1) { background: #FFF0F3; }
+        .tab-btn:nth-child(2) { background: #FFF9F0; }
+        .tab-btn:nth-child(3) { background: #F0FFF5; }
+        .tab-btn:nth-child(4) { background: #F0F8FF; }
+        .tab-btn:nth-child(5) { background: #F5F0FF; }
+        .tab-btn.active {
             color: white;
-            transform: scale(0.95);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transform: translateY(-2px);
         }
+        .tab-btn:nth-child(1).active { background: linear-gradient(135deg, #FF8FA3, #FF6B9D); }
+        .tab-btn:nth-child(2).active { background: linear-gradient(135deg, #FFD5A0, #FFB866); }
+        .tab-btn:nth-child(3).active { background: linear-gradient(135deg, #8BE5AB, #5CD68A); }
+        .tab-btn:nth-child(4).active { background: linear-gradient(135deg, #8EC5FC, #6B9EFF); }
+        .tab-btn:nth-child(5).active { background: linear-gradient(135deg, #C9B1FF, #A78BFA); }
         
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: fadeIn 0.3s; }
         
-        .card {
-            background: rgba(255,255,255,0.85);
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        .layout-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
         }
-        .card-title { font-size: 1.1rem; font-weight: bold; margin-bottom: 15px; color: #4A4A4A; }
         
-        .profile-section { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 15px; }
-        .profile-select { padding: 12px; background: rgba(255,255,255,0.6); border-radius: 10px; }
-        .profile-select label { display: block; margin-bottom: 6px; color: #888; font-size: 0.85rem; }
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 18px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+        }
+        .card-title {
+            font-size: 0.95rem;
+            font-weight: bold;
+            color: #4A4A4A;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .profile-section {
+            margin-bottom: 15px;
+        }
+        .profile-select {
+            margin-bottom: 12px;
+        }
+        .profile-select label {
+            display: block;
+            margin-bottom: 6px;
+            color: #888;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
         .profile-select select {
-            width: 100%; padding: 8px; border: 1px solid #E0E0E0; border-radius: 6px; font-size: 0.9rem; background: white; cursor: pointer;
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #FFE4E9;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            background: #FFF9FB;
+            cursor: pointer;
+            color: #555;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23FF6B9D' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
         }
         
         .btn {
-            padding: 12px 20px; border: none; border-radius: 10px; font-size: 0.95rem; cursor: pointer;
+            padding: 10px 18px;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            cursor: pointer;
             transition: all 0.2s;
+            font-weight: 500;
         }
-        .btn-primary { background: linear-gradient(135deg, #FFB6C1, #87CEEB); color: white; font-weight: bold; }
-        .btn-primary:active { transform: scale(0.95); }
-        .btn-success { background: linear-gradient(135deg, #98FB98, #3CB371); color: white; font-weight: bold; }
-        .btn-success:active { transform: scale(0.95); }
+        .btn-primary {
+            background: linear-gradient(135deg, #FF8FA3, #FF6B9D);
+            color: white;
+            box-shadow: 0 4px 12px rgba(255, 107, 157, 0.3);
+        }
+        .btn-primary:active { transform: scale(0.97); }
         
-        .recommend-btn, .save-btn { width: 100%; padding: 12px; border-radius: 10px; font-size: 1rem; }
-        
-        .schedule-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 15px; }
+        .schedule-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+            margin-bottom: 15px;
+        }
         .day-card {
-            background: rgba(255,255,255,0.6); border-radius: 10px; padding: 10px 5px; text-align: center;
-            cursor: pointer; transition: all 0.2s; border: 2px solid transparent;
+            background: #FFF9FB;
+            border-radius: 10px;
+            padding: 8px 5px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
         }
-        .day-card:hover, .day-card.active {
-            background: white; border-color: #FFB6C1; transform: scale(0.95);
+        .day-card:hover { background: #FFFBFC; }
+        .day-card.active {
+            background: white;
+            border-color: #FF6B9D;
+            box-shadow: 0 4px 10px rgba(255, 107, 157, 0.2);
         }
-        .day-card .day-name { font-weight: bold; font-size: 0.8rem; }
-        .day-card .day-date { font-size: 0.7rem; color: #888; }
+        .day-card .day-name {
+            font-weight: bold;
+            font-size: 0.75rem;
+            color: #555;
+            margin-bottom: 2px;
+        }
+        .day-card .day-date {
+            font-size: 0.65rem;
+            color: #FF6B9D;
+            font-weight: 500;
+        }
+        .day-card .day-num {
+            font-size: 0.7rem;
+            color: #999;
+        }
         
-        .time-slots { display: flex; flex-direction: column; gap: 10px; }
+        .time-slots {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
         .time-slot {
-            display: flex; align-items: center; gap: 12px; padding: 12px;
-            background: rgba(255,255,255,0.5); border-radius: 10px; cursor: pointer;
-            transition: all 0.2s; position: relative;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            background: #FFF9FB;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            border-left: 3px solid #FFB6C1;
+        }
+        .time-slot.completed {
+            background: #F0FFF5;
+            border-left-color: #5CD68A;
+            opacity: 0.85;
         }
         .time-slot:active { transform: scale(0.98); }
-        .time-slot .icon { width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
-        .time-slot .time { width: 90px; font-weight: bold; color: #888; font-size: 0.85rem; }
-        .time-slot .activity { flex: 1; font-size: 0.9rem; }
-        .time-slot .delete-btn { position: absolute; right: 10px; color: #FF6B6B; cursor: pointer; font-size: 0.9rem; opacity: 0; transition: opacity 0.2s; }
+        .time-slot .icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+        .time-slot .time {
+            font-weight: bold;
+            color: #666;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+        .time-slot .activity {
+            flex: 1;
+            font-size: 0.85rem;
+            color: #4A4A4A;
+        }
+        .time-slot .check-box {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 2px solid #DDD;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+        .time-slot.completed .check-box {
+            background: #5CD68A;
+            border-color: #5CD68A;
+        }
+        .time-slot.completed .check-box::after {
+            content: '✓';
+            color: white;
+            font-size: 0.65rem;
+        }
+        .time-slot .delete-btn {
+            position: absolute;
+            right: 40px;
+            color: #FF6B6B;
+            cursor: pointer;
+            font-size: 0.8rem;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
         .time-slot:hover .delete-btn { opacity: 1; }
         
-        .time-slot.sleep .icon { background: linear-gradient(135deg, #6B8DD6, #8E7CC3); color: white; }
-        .time-slot.study .icon { background: linear-gradient(135deg, #98FB98, #3CB371); color: white; }
-        .time-slot.work .icon { background: linear-gradient(135deg, #DDA0DD, #9932CC); color: white; }
-        .time-slot.meal .icon { background: linear-gradient(135deg, #FFB6C1, #FF69B4); color: white; }
-        .time-slot.exercise .icon { background: linear-gradient(135deg, #ADD8E6, #4169E1); color: white; }
-        .time-slot.rest .icon { background: linear-gradient(135deg, #FFDAB9, #FFA07A); color: white; }
+        .time-slot.sleep .icon { background: linear-gradient(135deg, #A0B8FF, #7C9BFF); }
+        .time-slot.study .icon { background: linear-gradient(135deg, #8BE5AB, #5CD68A); }
+        .time-slot.work .icon { background: linear-gradient(135deg, #C9B1FF, #A78BFA); }
+        .time-slot.meal .icon { background: linear-gradient(135deg, #FFD5A0, #FFB866); }
+        .time-slot.exercise .icon { background: linear-gradient(135deg, #8EC5FC, #6B9EFF); }
+        .time-slot.rest .icon { background: linear-gradient(135deg, #FFB6C1, #FF8FA3); }
         
         .add-slot-btn {
-            width: 100%; padding: 12px; border: 2px dashed #FFB6C1; border-radius: 10px;
-            background: transparent; color: #FFB6C1; font-size: 0.9rem; cursor: pointer;
+            width: 100%;
+            padding: 10px;
+            border: 2px dashed #FFB6C1;
+            border-radius: 10px;
+            background: #FFF9FB;
+            color: #FF6B9D;
+            font-size: 0.85rem;
+            cursor: pointer;
             transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-weight: 500;
         }
-        .add-slot-btn:active { background: rgba(255,182,193,0.1); }
+        .add-slot-btn:active { background: #FFFBFC; }
         
-        .todo-list { display: flex; flex-direction: column; gap: 10px; }
+        .todo-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
         .todo-item {
-            display: flex; align-items: center; gap: 10px; padding: 12px;
-            background: rgba(255,255,255,0.5); border-radius: 10px; transition: all 0.2s;
-        }
-        .todo-item.completed { opacity: 0.6; }
-        .todo-checkbox {
-            width: 20px; height: 20px; border-radius: 50%; border: 2px solid #FFB6C1;
-            cursor: pointer; display: flex; align-items: center; justify-content: center;
-        }
-        .todo-checkbox.completed { background: linear-gradient(135deg, #FFB6C1, #87CEEB); border-color: transparent; }
-        .todo-checkbox.completed::after { content: '✓'; color: white; font-size: 0.7rem; }
-        .todo-text { flex: 1; font-size: 0.9rem; }
-        .todo-delete { color: #FF6B6B; cursor: pointer; font-size: 1rem; }
-        .add-todo { display: flex; gap: 8px; margin-top: 15px; }
-        .add-todo input { flex: 1; padding: 10px; border: 1px solid #E0E0E0; border-radius: 8px; font-size: 0.9rem; }
-        
-        .meditation-container { text-align: center; padding: 30px 20px; }
-        .meditation-circle {
-            width: 160px; height: 160px; border-radius: 50%;
-            background: linear-gradient(135deg, rgba(255,182,193,0.3), rgba(135,206,235,0.3));
-            margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;
-            animation: breathe 4s ease-in-out infinite;
-        }
-        .meditation-circle .time { font-size: 1.8rem; font-weight: bold; color: #4A4A4A; }
-        .meditation-controls { display: flex; justify-content: center; gap: 15px; margin-top: 15px; }
-        .meditation-btn {
-            width: 50px; height: 50px; border-radius: 50%; border: none; cursor: pointer;
-            transition: all 0.2s; font-size: 1.2rem;
-        }
-        .meditation-btn.play { background: linear-gradient(135deg, #FFB6C1, #87CEEB); color: white; }
-        .meditation-btn.play:active { transform: scale(0.95); }
-        .meditation-btn.reset { background: white; color: #888; }
-        .meditation-presets { display: flex; justify-content: center; gap: 8px; margin-top: 20px; flex-wrap: wrap; }
-        .meditation-preset {
-            padding: 8px 16px; border: 1px solid #FFB6C1; border-radius: 15px;
-            background: transparent; cursor: pointer; font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px;
+            background: #FFF9F0;
+            border-radius: 10px;
             transition: all 0.2s;
         }
-        .meditation-preset:hover, .meditation-preset.active {
-            background: linear-gradient(135deg, #FFB6C1, #87CEEB); color: white; border-color: transparent;
+        .todo-item.completed {
+            background: #F0FFF5;
+            opacity: 0.8;
+        }
+        .todo-checkbox {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+            border: 2px solid #FFB866;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+        .todo-checkbox.completed {
+            background: #5CD68A;
+            border-color: #5CD68A;
+        }
+        .todo-checkbox.completed::after {
+            content: '✓';
+            color: white;
+            font-size: 0.6rem;
+        }
+        .todo-text {
+            flex: 1;
+            font-size: 0.85rem;
+            color: #4A4A4A;
+        }
+        .todo-delete {
+            color: #FF6B6B;
+            cursor: pointer;
+            font-size: 0.85rem;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .todo-item:hover .todo-delete { opacity: 1; }
+        .add-todo {
+            display: flex;
+            gap: 6px;
+            margin-top: 12px;
+        }
+        .add-todo input {
+            flex: 1;
+            padding: 8px 10px;
+            border: 2px solid #FFE4E9;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            background: #FFF9FB;
+        }
+        .add-todo input:focus {
+            outline: none;
+            border-color: #FF6B9D;
         }
         
-        .water-tracker { text-align: center; padding: 15px; }
-        .water-glass {
-            width: 60px; height: 100px; border: 3px solid #87CEEB; border-radius: 0 0 8px 8px;
-            margin: 0 auto 15px; position: relative; overflow: hidden;
+        .meditation-card {
+            background: linear-gradient(135deg, #F0FFF5 0%, #FFF5F7 100%);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
         }
-        .water-level {
-            position: absolute; bottom: 0; left: 0; right: 0;
-            background: linear-gradient(180deg, #87CEEB, #4169E1); transition: height 0.5s; opacity: 0.7;
+        .meditation-card::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 120px;
+            height: 120px;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🧘%3C/text%3E%3C/svg%3E") no-repeat;
+            background-size: 100%;
+            opacity: 0.15;
         }
-        .water-buttons { display: flex; justify-content: center; gap: 10px; }
-        .water-btn {
-            padding: 8px 16px; border: none; border-radius: 15px;
-            background: linear-gradient(135deg, #87CEEB, #4169E1); color: white;
-            cursor: pointer; font-size: 0.85rem; transition: all 0.2s;
+        .meditation-card .title {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #5CD68A;
+            margin-bottom: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
         }
-        .water-btn:active { transform: scale(0.95); }
+        .meditation-card .subtitle {
+            font-size: 0.75rem;
+            color: #999;
+            margin-bottom: 15px;
+        }
+        .meditation-card .time {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #4A4A4A;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+        }
+        .meditation-card .btn {
+            width: 100%;
+            background: linear-gradient(135deg, #8BE5AB, #5CD68A);
+            color: white;
+            box-shadow: 0 4px 12px rgba(92, 214, 138, 0.3);
+        }
         
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; }
-        .stat-card {
-            background: white; border-radius: 12px; padding: 20px; text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        .water-card {
+            background: linear-gradient(135deg, #F0F8FF 0%, #FFF5F7 100%);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
         }
-        .stat-card .value { font-size: 2rem; font-weight: bold; background: linear-gradient(135deg, #FF69B4, #4169E1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .stat-card .label { font-size: 0.85rem; color: #888; }
+        .water-card .title {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #6B9EFF;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+        .water-card .progress {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #4A4A4A;
+            margin-bottom: 8px;
+        }
+        .water-card .progress span {
+            color: #6B9EFF;
+        }
+        .water-card .bar-container {
+            width: 100%;
+            height: 8px;
+            background: #E8F4FF;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+        .water-card .bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #8EC5FC, #6B9EFF);
+            border-radius: 4px;
+            transition: width 0.5s;
+        }
+        .water-card .hint {
+            font-size: 0.75rem;
+            color: #999;
+        }
+        .water-card .btn {
+            margin-top: 12px;
+            width: 100%;
+            background: linear-gradient(135deg, #8EC5FC, #6B9EFF);
+            color: white;
+            box-shadow: 0 4px 12px rgba(107, 158, 255, 0.3);
+        }
+        
+        .stats-card {
+            background: white;
+            border-radius: 16px;
+            padding: 18px;
+        }
+        .stats-card .title {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #4A4A4A;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+        .stat-item {
+            text-align: center;
+            padding: 10px;
+            background: #FFF9FB;
+            border-radius: 10px;
+        }
+        .stat-item .icon {
+            font-size: 1.2rem;
+            margin-bottom: 4px;
+        }
+        .stat-item .value {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #FF6B9D;
+        }
+        .stat-item .label {
+            font-size: 0.7rem;
+            color: #999;
+            margin-top: 2px;
+        }
         
         .modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); justify-content: center; align-items: center;
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
             z-index: 1000;
         }
         .modal.active { display: flex; }
         .modal-content {
-            background: white; border-radius: 15px; padding: 25px; width: 90%; max-width: 350px;
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            width: 90%;
+            max-width: 350px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
         }
-        .modal-content h3 { margin-bottom: 15px; }
-        .form-group { margin-bottom: 12px; }
-        .form-group label { display: block; margin-bottom: 4px; color: #888; font-size: 0.85rem; }
+        .modal-content h3 {
+            margin-bottom: 15px;
+            color: #4A4A4A;
+            font-size: 1.1rem;
+        }
+        .form-group {
+            margin-bottom: 12px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 4px;
+            color: #888;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
         .form-group input, .form-group select {
-            width: 100%; padding: 10px; border: 1px solid #E0E0E0; border-radius: 8px; font-size: 0.9rem;
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #FFE4E9;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            background: #FFF9FB;
         }
-        .modal-buttons { display: flex; gap: 8px; margin-top: 20px; }
-        .modal-buttons .btn { flex: 1; padding: 10px; }
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #FF6B9D;
+        }
+        .modal-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 20px;
+        }
+        .modal-buttons .btn {
+            flex: 1;
+            padding: 10px;
+        }
+        .modal-buttons .btn.cancel {
+            background: #F5F5F5;
+            color: #888;
+        }
         
         .toast {
-            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
-            background: rgba(0,0,0,0.8); color: white; padding: 12px 24px;
-            border-radius: 20px; font-size: 0.9rem; opacity: 0; transition: opacity 0.3s; z-index: 2000;
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 2000;
         }
         .toast.show { opacity: 1; }
         
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes breathe {
-            0%,100% { transform: scale(1); opacity: 0.6; }
-            50% { transform: scale(1.08); opacity: 0.8; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        @media (max-width: 480px) {
+            .time-slot {
+                padding: 8px 10px;
+                gap: 6px;
+            }
+            .time-slot .icon {
+                width: 28px;
+                height: 28px;
+                font-size: 0.85rem;
+            }
+            .time-slot .time {
+                font-size: 0.7rem;
+            }
+            .time-slot .activity {
+                font-size: 0.75rem;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            .time-slot .check-box {
+                width: 16px;
+                height: 16px;
+            }
+            .stats-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+            }
+            .stat-item {
+                padding: 8px;
+            }
+            .stat-item .icon {
+                font-size: 1rem;
+            }
+            .stat-item .value {
+                font-size: 0.9rem;
+            }
+            .stat-item .label {
+                font-size: 0.65rem;
+            }
+            .schedule-grid {
+                gap: 4px;
+            }
+            .day-card {
+                padding: 6px 3px;
+            }
+            .day-card .day-name {
+                font-size: 0.65rem;
+            }
+            .day-card .day-date {
+                font-size: 0.6rem;
+            }
+            .day-card .day-num {
+                font-size: 0.6rem;
+            }
+            .card-title {
+                font-size: 0.85rem;
+            }
+            .header-section h1 {
+                font-size: 1.3rem;
+            }
+            .header-section p {
+                font-size: 0.75rem;
+            }
         }
         
-        @media (max-width: 500px) {
-            .profile-section { grid-template-columns: 1fr; }
-            .schedule-grid { gap: 4px; }
-            .day-card { padding: 8px 3px; }
-            .day-card .day-name { font-size: 0.7rem; }
-            .day-card .day-date { font-size: 0.6rem; }
-            .time-slot { padding: 10px; gap: 8px; }
-            .time-slot .time { width: 70px; font-size: 0.75rem; }
-            .time-slot .activity { font-size: 0.8rem; }
-            .time-slot .icon { width: 30px; height: 30px; font-size: 0.9rem; }
-            .meditation-circle { width: 120px; height: 120px; }
-            .meditation-circle .time { font-size: 1.3rem; }
-            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        @media (min-width: 768px) {
+            .layout-grid {
+                grid-template-columns: 2fr 1fr;
+            }
+            .main-content {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            .right-sidebar {
+                display: flex;
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+        
+        @media (min-width: 1024px) {
+            .layout-grid {
+                grid-template-columns: 3fr 1fr;
+            }
+            .main-content {
+                grid-template-columns: 1fr 1fr;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>🌙 作息自愈规划站</h1>
-            <p>用心规划每一天，遇见更好的自己</p>
-        </header>
-        
-        <div class="nav-tabs">
-            <button class="tab-btn active" onclick="switchTab('schedule')">📅 作息规划</button>
-            <button class="tab-btn" onclick="switchTab('todo')">📝 任务管理</button>
-            <button class="tab-btn" onclick="switchTab('meditation')">🧘 自愈放松</button>
-            <button class="tab-btn" onclick="switchTab('health')">💧 健康管理</button>
-            <button class="tab-btn" onclick="switchTab('stats')">📊 数据统计</button>
+    <div class="main-container">
+        <div class="header-section">
+            <h1>作息自愈规划站</h1>
+            <p>科学规划 · 自律成长 · 遇见更好的自己</p>
         </div>
         
         <div id="schedule" class="tab-content active">
-            <div class="card">
-                <div class="card-title">设置您的模式</div>
-                <div class="profile-section">
-                    <div class="profile-select">
-                        <label>🎯 选择模式</label>
-                        <select id="occupationSelect">
-                            <option value="relax_study">📚 轻松学习</option>
-                            <option value="gaokao">🎯 高考复习</option>
-                            <option value="graduate">📖 备战考研</option>
-                            <option value="office_advance">💼 职场进阶</option>
-                            <option value="creative">🎨 自由创作</option>
-                            <option value="health">🌿 养生保健</option>
-                            <option value="freelance">💻 自由职业</option>
-                            <option value="leisure">☕ 休闲生活</option>
-                        </select>
+            <div class="layout-grid">
+                <div class="main-content">
+                    <div class="card">
+                        <div class="card-title">🎯 选择模式</div>
+                        <div class="profile-section">
+                            <div class="profile-select">
+                                <label>选择模式</label>
+                                <select id="occupationSelect">
+                                    <option value="gaokao">🎯 高考模式</option>
+                                    <option value="graduate">📖 考研模式</option>
+                                    <option value="office_advance">💼 职场模式</option>
+                                    <option value="relax_study">📚 轻松学习</option>
+                                    <option value="creative">🎨 自由创作</option>
+                                    <option value="health">🌿 养生保健</option>
+                                    <option value="freelance">💻 自由职业</option>
+                                    <option value="leisure">☕ 休闲生活</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-primary" style="width:100%;" onclick="applyRecommendation()">✨ 生成推荐作息</button>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">📅 本周日期</div>
+                        <div class="schedule-grid" id="scheduleGrid"></div>
+                    </div>
+                    
+                    <div class="card" style="grid-column:1/-1;">
+                        <div class="card-title">📋 <span id="currentDayTitle">周一</span> 作息安排</div>
+                        <div class="time-slots" id="timeSlots"></div>
+                    </div>
+                    
+                    <div class="card" style="grid-column:1/-1;">
+                        <div class="meditation-card">
+                            <div class="title">🧘 冥想放松</div>
+                            <div class="subtitle">专注呼吸 · 放松身心</div>
+                            <div class="time" id="meditationTime">05:00</div>
+                            <div style="display:flex; gap:8px; margin-bottom:12px; justify-content:center; flex-wrap:wrap;">
+                                <button class="btn" style="padding:6px 12px; background:#F5F5F5; color:#666; font-size:0.8rem;" onclick="setMeditationTime(5)">5分钟</button>
+                                <button class="btn" style="padding:6px 12px; background:#F5F5F5; color:#666; font-size:0.8rem;" onclick="setMeditationTime(10)">10分钟</button>
+                                <button class="btn" style="padding:6px 12px; background:#F5F5F5; color:#666; font-size:0.8rem;" onclick="setMeditationTime(15)">15分钟</button>
+                            </div>
+                            <div style="display:flex; gap:8px;">
+                                <button class="btn" style="flex:1; background:linear-gradient(135deg, #8BE5AB, #5CD68A); color:white;" onclick="toggleMeditation()" id="meditationBtn">开始冥想</button>
+                                <button class="btn" style="flex:1; background:#F5F5F5; color:#666;" onclick="resetMeditation()">🔄 重置</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <button class="btn btn-primary recommend-btn" onclick="applyRecommendation()">✨ 获取推荐作息</button>
-            </div>
-            
-            <div class="card">
-                <div class="card-title">本周作息表</div>
-                <div class="schedule-grid" id="scheduleGrid">
-                    <div class="day-card active" onclick="selectDay(0)"><div class="day-name">周一</div><div class="day-date">1</div></div>
-                    <div class="day-card" onclick="selectDay(1)"><div class="day-name">周二</div><div class="day-date">2</div></div>
-                    <div class="day-card" onclick="selectDay(2)"><div class="day-name">周三</div><div class="day-date">3</div></div>
-                    <div class="day-card" onclick="selectDay(3)"><div class="day-name">周四</div><div class="day-date">4</div></div>
-                    <div class="day-card" onclick="selectDay(4)"><div class="day-name">周五</div><div class="day-date">5</div></div>
-                    <div class="day-card" onclick="selectDay(5)"><div class="day-name">周六</div><div class="day-date">6</div></div>
-                    <div class="day-card" onclick="selectDay(6)"><div class="day-name">周日</div><div class="day-date">7</div></div>
-                </div>
-                <div class="time-slots" id="timeSlots"></div>
-                <button class="btn btn-success save-btn" onclick="saveData()">💾 保存作息计划</button>
-            </div>
-        </div>
-        
-        <div id="todo" class="tab-content">
-            <div class="card">
-                <div class="card-title">今日待办</div>
-                <div class="todo-list" id="todoList"></div>
-                <div class="add-todo">
-                    <input type="text" id="newTodo" placeholder="添加新任务..." onkeypress="if(event.key==='Enter') addTodo()">
-                    <button class="btn btn-primary" onclick="addTodo()">➕</button>
-                </div>
-            </div>
-        </div>
-        
-        <div id="meditation" class="tab-content">
-            <div class="card">
-                <div class="card-title">冥想放松</div>
-                <div class="meditation-container">
-                    <div class="meditation-circle"><div class="time" id="meditationTime">05:00</div></div>
-                    <div class="meditation-controls">
-                        <button class="meditation-btn reset" onclick="resetMeditation()">🔄</button>
-                        <button class="meditation-btn play" onclick="toggleMeditation()">▶</button>
+                
+                <div class="right-sidebar">
+                    <div class="card">
+                        <div class="card-title">✅ 今日待办</div>
+                        <div class="todo-list" id="todoList"></div>
+                        <div class="add-todo">
+                            <input type="text" id="newTodo" placeholder="添加任务..." onkeypress="if(event.key==='Enter') addTodo()">
+                            <button class="btn btn-primary" onclick="addTodo()" style="padding:8px 12px;">➕</button>
+                        </div>
                     </div>
-                    <div class="meditation-presets">
-                        <button class="meditation-preset" onclick="setMeditationTime(3)">3分钟</button>
-                        <button class="meditation-preset active" onclick="setMeditationTime(5)">5分钟</button>
-                        <button class="meditation-preset" onclick="setMeditationTime(10)">10分钟</button>
-                        <button class="meditation-preset" onclick="setMeditationTime(15)">15分钟</button>
+                    
+                    <div class="water-card">
+                        <div class="title">💧 喝水提醒</div>
+                        <div class="progress"><span id="waterAmount">0</span> / 2000ml</div>
+                        <div class="bar-container">
+                            <div class="bar-fill" id="waterBar" style="width:0%;"></div>
+                        </div>
+                        <div class="hint" id="waterHint">今天记得喝水哦！</div>
+                        <div style="display:flex; gap:8px; margin-top:12px;">
+                            <button class="btn" style="flex:1; background:linear-gradient(135deg, #8EC5FC, #6B9EFF); color:white;" onclick="addWater()">➕ 喝一杯</button>
+                            <button class="btn" style="flex:1; background:#F5F5F5; color:#888;" onclick="resetWater()">🔄 清零</button>
+                        </div>
                     </div>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-title">呼吸练习</div>
-                <div class="meditation-container">
-                    <div class="meditation-circle" style="width:140px;height:140px;">
-                        <div style="font-size:1.2rem;color:#4A4A4A;" id="breathText">吸气</div>
+                    
+                    <div class="stats-card">
+                        <div class="title">📊 今日数据</div>
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <div class="icon">⏰</div>
+                                <div class="value" id="statWorkTime">0h</div>
+                                <div class="label">专注时长</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="icon">✅</div>
+                                <div class="value" id="statTaskRate">0/0</div>
+                                <div class="label">任务完成</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="icon">💧</div>
+                                <div class="value" id="statWater">0%</div>
+                                <div class="label">喝水目标</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="icon">📚</div>
+                                <div class="value" id="statStudyTime">0h</div>
+                                <div class="label">学习时长</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="icon">💼</div>
+                                <div class="value" id="statWorkTime2">0h</div>
+                                <div class="label">工作时长</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="icon">🌙</div>
+                                <div class="value" id="statSleepTime">0h</div>
+                                <div class="label">睡眠时长</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="icon">🏃</div>
+                                <div class="value" id="statExerciseTime">0h</div>
+                                <div class="label">运动时长</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="icon">🍽️</div>
+                                <div class="value" id="statMealTime">0h</div>
+                                <div class="label">用餐时长</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="icon">☕</div>
+                                <div class="value" id="statRestTime">0h</div>
+                                <div class="label">休闲时长</div>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" style="width:100%;" onclick="saveData()">💾 保存数据</button>
                     </div>
-                    <div style="margin-top:15px;"><button class="btn btn-primary" onclick="toggleBreathing()">开始练习</button></div>
-                </div>
-            </div>
-        </div>
-        
-        <div id="health" class="tab-content">
-            <div class="card">
-                <div class="card-title">喝水追踪器</div>
-                <div class="water-tracker">
-                    <div class="water-glass"><div class="water-level" id="waterLevel" style="height:50%;"></div></div>
-                    <div style="font-size:1rem;font-weight:bold;margin-bottom:15px;" id="waterCount">4/8 杯</div>
-                    <div class="water-buttons">
-                        <button class="water-btn" onclick="addWater()">➕ 喝一杯</button>
-                        <button class="water-btn" onclick="resetWater()" style="background:#FF6B6B;">🔄 重置</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div id="stats" class="tab-content">
-            <div class="card">
-                <div class="card-title">今日统计</div>
-                <div class="stats-grid">
-                    <div class="stat-card"><div class="value" id="statTaskRate">0%</div><div class="label">任务完成率</div></div>
-                    <div class="stat-card"><div class="value" id="statWorkTime">0h</div><div class="label">学习/工作时长</div></div>
-                    <div class="stat-card"><div class="value" id="statSleepTime">0h</div><div class="label">睡眠时长</div></div>
-                    <div class="stat-card"><div class="value" id="statExerciseTime">0min</div><div class="label">运动时长</div></div>
-                    <div class="stat-card"><div class="value" id="statMealTime">0h</div><div class="label">用餐时长</div></div>
-                    <div class="stat-card"><div class="value" id="statRestTime">0h</div><div class="label">休闲时长</div></div>
                 </div>
             </div>
         </div>
@@ -372,7 +843,7 @@
                 <input type="text" id="slotActivity" placeholder="请输入活动内容">
             </div>
             <div class="modal-buttons">
-                <button class="btn" style="background:#F5F5F5;color:#888;" onclick="closeModal()">取消</button>
+                <button class="btn cancel" onclick="closeModal()">取消</button>
                 <button class="btn btn-primary" onclick="addSlot()">确认添加</button>
             </div>
         </div>
@@ -381,8 +852,6 @@
     <div class="toast" id="toast"></div>
     
     <script>
-        console.log('===== JS LOADED =====');
-        
         const schedulesData = {
             relax_study: {
                 weekday: [
@@ -420,33 +889,33 @@
                     { startTime: '22:30', endTime: '06:00', type: 'sleep', activity: '晚安入睡' },
                     { startTime: '06:00', endTime: '06:30', type: 'sleep', activity: '起床洗漱' },
                     { startTime: '06:30', endTime: '07:00', type: 'exercise', activity: '晨间锻炼' },
-                    { startTime: '07:00', endTime: '07:30', type: 'meal', activity: '营养早餐' },
-                    { startTime: '07:30', endTime: '08:00', type: 'study', activity: '早读背诵' },
-                    { startTime: '08:00', endTime: '10:00', type: 'study', activity: '语文复习' },
-                    { startTime: '10:00', endTime: '10:15', type: 'rest', activity: '短暂休息' },
-                    { startTime: '10:15', endTime: '12:15', type: 'study', activity: '数学复习' },
-                    { startTime: '12:15', endTime: '12:45', type: 'meal', activity: '午餐时光' },
-                    { startTime: '12:45', endTime: '13:30', type: 'rest', activity: '午休小憩' },
-                    { startTime: '13:30', endTime: '15:30', type: 'study', activity: '英语复习' },
-                    { startTime: '15:30', endTime: '15:45', type: 'rest', activity: '短暂休息' },
-                    { startTime: '15:45', endTime: '18:00', type: 'study', activity: '理科综合' },
-                    { startTime: '18:00', endTime: '18:30', type: 'meal', activity: '健康晚餐' },
-                    { startTime: '18:30', endTime: '20:30', type: 'study', activity: '错题整理' },
-                    { startTime: '20:30', endTime: '20:45', type: 'rest', activity: '放松休息' },
-                    { startTime: '20:45', endTime: '22:15', type: 'study', activity: '模拟练习' },
-                    { startTime: '22:15', endTime: '22:30', type: 'rest', activity: '洗漱准备' }
+                    { startTime: '07:00', endTime: '07:30', type: 'meal', activity: '早餐时间' },
+                    { startTime: '07:30', endTime: '08:00', type: 'study', activity: '晨读记忆' },
+                    { startTime: '08:00', endTime: '10:00', type: 'study', activity: '专注学习（数学）' },
+                    { startTime: '10:00', endTime: '10:20', type: 'rest', activity: '休息放松' },
+                    { startTime: '10:20', endTime: '12:20', type: 'study', activity: '专注学习（语文）' },
+                    { startTime: '12:20', endTime: '13:00', type: 'meal', activity: '午餐时间' },
+                    { startTime: '13:00', endTime: '13:40', type: 'rest', activity: '午休小憩' },
+                    { startTime: '13:40', endTime: '15:40', type: 'study', activity: '专注学习（英语）' },
+                    { startTime: '15:40', endTime: '16:00', type: 'rest', activity: '休息放松' },
+                    { startTime: '16:00', endTime: '18:00', type: 'study', activity: '专注学习（理综）' },
+                    { startTime: '18:00', endTime: '18:40', type: 'meal', activity: '晚餐时间' },
+                    { startTime: '18:40', endTime: '20:40', type: 'study', activity: '错题整理' },
+                    { startTime: '20:40', endTime: '21:00', type: 'rest', activity: '休息放松' },
+                    { startTime: '21:00', endTime: '22:30', type: 'study', activity: '晚间复盘总结' },
+                    { startTime: '22:30', endTime: '23:00', type: 'rest', activity: '洗漱准备' }
                 ],
                 weekend: [
                     { startTime: '23:00', endTime: '07:00', type: 'sleep', activity: '晚安入睡' },
                     { startTime: '07:00', endTime: '07:30', type: 'sleep', activity: '起床洗漱' },
                     { startTime: '07:30', endTime: '08:00', type: 'exercise', activity: '晨间锻炼' },
-                    { startTime: '08:00', endTime: '08:30', type: 'meal', activity: '营养早餐' },
+                    { startTime: '08:00', endTime: '08:30', type: 'meal', activity: '早餐时间' },
                     { startTime: '08:30', endTime: '11:30', type: 'study', activity: '模拟考试' },
-                    { startTime: '11:30', endTime: '12:00', type: 'rest', activity: '短暂休息' },
-                    { startTime: '12:00', endTime: '12:30', type: 'meal', activity: '午餐时光' },
+                    { startTime: '11:30', endTime: '12:00', type: 'rest', activity: '休息放松' },
+                    { startTime: '12:00', endTime: '12:30', type: 'meal', activity: '午餐时间' },
                     { startTime: '12:30', endTime: '14:00', type: 'rest', activity: '午休小憩' },
                     { startTime: '14:00', endTime: '17:00', type: 'study', activity: '试卷分析' },
-                    { startTime: '17:00', endTime: '18:00', type: 'meal', activity: '健康晚餐' },
+                    { startTime: '17:00', endTime: '18:00', type: 'meal', activity: '晚餐时间' },
                     { startTime: '18:00', endTime: '20:00', type: 'study', activity: '薄弱科目专项' },
                     { startTime: '20:00', endTime: '21:00', type: 'rest', activity: '放松娱乐' },
                     { startTime: '21:00', endTime: '23:00', type: 'rest', activity: '睡前放松' }
@@ -457,18 +926,18 @@
                     { startTime: '23:00', endTime: '06:30', type: 'sleep', activity: '晚安入睡' },
                     { startTime: '06:30', endTime: '07:00', type: 'sleep', activity: '起床洗漱' },
                     { startTime: '07:00', endTime: '07:30', type: 'exercise', activity: '晨间锻炼' },
-                    { startTime: '07:30', endTime: '08:00', type: 'meal', activity: '营养早餐' },
+                    { startTime: '07:30', endTime: '08:00', type: 'meal', activity: '早餐时间' },
                     { startTime: '08:00', endTime: '10:30', type: 'study', activity: '英语复习' },
-                    { startTime: '10:30', endTime: '10:45', type: 'rest', activity: '短暂休息' },
+                    { startTime: '10:30', endTime: '10:45', type: 'rest', activity: '休息放松' },
                     { startTime: '10:45', endTime: '12:45', type: 'study', activity: '政治复习' },
-                    { startTime: '12:45', endTime: '13:15', type: 'meal', activity: '午餐时光' },
+                    { startTime: '12:45', endTime: '13:15', type: 'meal', activity: '午餐时间' },
                     { startTime: '13:15', endTime: '14:15', type: 'rest', activity: '午休小憩' },
                     { startTime: '14:15', endTime: '17:00', type: 'study', activity: '数学复习' },
-                    { startTime: '17:00', endTime: '17:15', type: 'rest', activity: '短暂休息' },
+                    { startTime: '17:00', endTime: '17:15', type: 'rest', activity: '休息放松' },
                     { startTime: '17:15', endTime: '18:30', type: 'study', activity: '专业课' },
-                    { startTime: '18:30', endTime: '19:00', type: 'meal', activity: '健康晚餐' },
+                    { startTime: '18:30', endTime: '19:00', type: 'meal', activity: '晚餐时间' },
                     { startTime: '19:00', endTime: '21:30', type: 'study', activity: '真题练习' },
-                    { startTime: '21:30', endTime: '21:45', type: 'rest', activity: '放松休息' },
+                    { startTime: '21:30', endTime: '21:45', type: 'rest', activity: '休息放松' },
                     { startTime: '21:45', endTime: '22:45', type: 'study', activity: '总结复盘' },
                     { startTime: '22:45', endTime: '23:00', type: 'rest', activity: '洗漱准备' }
                 ],
@@ -476,12 +945,12 @@
                     { startTime: '23:30', endTime: '07:30', type: 'sleep', activity: '晚安入睡' },
                     { startTime: '07:30', endTime: '08:00', type: 'sleep', activity: '起床洗漱' },
                     { startTime: '08:00', endTime: '08:30', type: 'exercise', activity: '晨间锻炼' },
-                    { startTime: '08:30', endTime: '09:00', type: 'meal', activity: '营养早餐' },
+                    { startTime: '08:30', endTime: '09:00', type: 'meal', activity: '早餐时间' },
                     { startTime: '09:00', endTime: '12:00', type: 'study', activity: '全真模拟考试' },
-                    { startTime: '12:00', endTime: '12:30', type: 'meal', activity: '午餐时光' },
+                    { startTime: '12:00', endTime: '12:30', type: 'meal', activity: '午餐时间' },
                     { startTime: '12:30', endTime: '14:00', type: 'rest', activity: '午休小憩' },
                     { startTime: '14:00', endTime: '17:00', type: 'study', activity: '错题整理分析' },
-                    { startTime: '17:00', endTime: '18:00', type: 'meal', activity: '健康晚餐' },
+                    { startTime: '17:00', endTime: '18:00', type: 'meal', activity: '晚餐时间' },
                     { startTime: '18:00', endTime: '20:00', type: 'study', activity: '薄弱环节专项' },
                     { startTime: '20:00', endTime: '21:30', type: 'rest', activity: '放松娱乐' },
                     { startTime: '21:30', endTime: '23:30', type: 'rest', activity: '睡前放松' }
@@ -491,13 +960,13 @@
                 weekday: [
                     { startTime: '23:00', endTime: '07:00', type: 'sleep', activity: '晚安入睡' },
                     { startTime: '07:00', endTime: '07:30', type: 'sleep', activity: '起床洗漱' },
-                    { startTime: '07:30', endTime: '08:00', type: 'meal', activity: '营养早餐' },
+                    { startTime: '07:30', endTime: '08:00', type: 'meal', activity: '早餐时间' },
                     { startTime: '08:00', endTime: '09:00', type: 'work', activity: '通勤上班' },
                     { startTime: '09:00', endTime: '12:00', type: 'work', activity: '高效工作' },
-                    { startTime: '12:00', endTime: '12:30', type: 'meal', activity: '午餐时光' },
+                    { startTime: '12:00', endTime: '12:30', type: 'meal', activity: '午餐时间' },
                     { startTime: '12:30', endTime: '13:30', type: 'rest', activity: '午休小憩' },
                     { startTime: '13:30', endTime: '18:00', type: 'work', activity: '专注工作' },
-                    { startTime: '18:00', endTime: '19:00', type: 'meal', activity: '健康晚餐' },
+                    { startTime: '18:00', endTime: '19:00', type: 'meal', activity: '晚餐时间' },
                     { startTime: '19:00', endTime: '20:30', type: 'study', activity: '学习提升' },
                     { startTime: '20:30', endTime: '21:30', type: 'exercise', activity: '运动健身' },
                     { startTime: '21:30', endTime: '23:00', type: 'rest', activity: '放松休息' }
@@ -505,13 +974,13 @@
                 weekend: [
                     { startTime: '24:00', endTime: '09:00', type: 'sleep', activity: '晚安入睡' },
                     { startTime: '09:00', endTime: '09:30', type: 'sleep', activity: '起床洗漱' },
-                    { startTime: '09:30', endTime: '10:30', type: 'meal', activity: '营养早餐' },
+                    { startTime: '09:30', endTime: '10:30', type: 'meal', activity: '早餐时间' },
                     { startTime: '10:30', endTime: '12:00', type: 'study', activity: '深度学习' },
-                    { startTime: '12:00', endTime: '13:00', type: 'meal', activity: '午餐时光' },
-                    { startTime: '13:00', endTime: '15:00', type: 'sleep', activity: '午休小憩' },
+                    { startTime: '12:00', endTime: '13:00', type: 'meal', activity: '午餐时间' },
+                    { startTime: '13:00', endTime: '15:00', type: 'rest', activity: '午休小憩' },
                     { startTime: '15:00', endTime: '17:00', type: 'rest', activity: '户外活动' },
                     { startTime: '17:00', endTime: '18:00', type: 'exercise', activity: '运动健身' },
-                    { startTime: '18:00', endTime: '19:00', type: 'meal', activity: '健康晚餐' },
+                    { startTime: '18:00', endTime: '19:00', type: 'meal', activity: '晚餐时间' },
                     { startTime: '19:00', endTime: '22:00', type: 'rest', activity: '休闲娱乐' },
                     { startTime: '22:00', endTime: '24:00', type: 'rest', activity: '睡前放松' }
                 ]
@@ -520,27 +989,27 @@
                 weekday: [
                     { startTime: '24:00', endTime: '09:00', type: 'sleep', activity: '晚安入睡' },
                     { startTime: '09:00', endTime: '09:30', type: 'sleep', activity: '起床洗漱' },
-                    { startTime: '09:30', endTime: '10:00', type: 'meal', activity: '营养早餐' },
+                    { startTime: '09:30', endTime: '10:00', type: 'meal', activity: '早餐时间' },
                     { startTime: '10:00', endTime: '11:00', type: 'rest', activity: '灵感收集' },
                     { startTime: '11:00', endTime: '13:00', type: 'work', activity: '创作时间' },
-                    { startTime: '13:00', endTime: '14:00', type: 'meal', activity: '午餐时光' },
+                    { startTime: '13:00', endTime: '14:00', type: 'meal', activity: '午餐时间' },
                     { startTime: '14:00', endTime: '15:00', type: 'rest', activity: '午休小憩' },
                     { startTime: '15:00', endTime: '17:30', type: 'work', activity: '设计创作' },
                     { startTime: '17:30', endTime: '18:30', type: 'exercise', activity: '运动放松' },
-                    { startTime: '18:30', endTime: '19:30', type: 'meal', activity: '健康晚餐' },
+                    { startTime: '18:30', endTime: '19:30', type: 'meal', activity: '晚餐时间' },
                     { startTime: '19:30', endTime: '22:30', type: 'work', activity: '晚间创作' },
                     { startTime: '22:30', endTime: '24:00', type: 'rest', activity: '放松休息' }
                 ],
                 weekend: [
                     { startTime: '24:00', endTime: '10:00', type: 'sleep', activity: '晚安入睡' },
                     { startTime: '10:00', endTime: '10:30', type: 'sleep', activity: '起床洗漱' },
-                    { startTime: '10:30', endTime: '11:30', type: 'meal', activity: '营养早餐' },
+                    { startTime: '10:30', endTime: '11:30', type: 'meal', activity: '早餐时间' },
                     { startTime: '11:30', endTime: '13:00', type: 'rest', activity: '灵感采风' },
-                    { startTime: '13:00', endTime: '14:00', type: 'meal', activity: '午餐时光' },
-                    { startTime: '14:00', endTime: '16:00', type: 'sleep', activity: '午休小憩' },
+                    { startTime: '13:00', endTime: '14:00', type: 'meal', activity: '午餐时间' },
+                    { startTime: '14:00', endTime: '16:00', type: 'rest', activity: '午休小憩' },
                     { startTime: '16:00', endTime: '18:00', type: 'work', activity: '自由创作' },
                     { startTime: '18:00', endTime: '19:00', type: 'exercise', activity: '运动健身' },
-                    { startTime: '19:00', endTime: '20:00', type: 'meal', activity: '健康晚餐' },
+                    { startTime: '19:00', endTime: '20:00', type: 'meal', activity: '晚餐时间' },
                     { startTime: '20:00', endTime: '23:00', type: 'rest', activity: '休闲娱乐' },
                     { startTime: '23:00', endTime: '24:00', type: 'rest', activity: '睡前放松' }
                 ]
@@ -550,14 +1019,14 @@
                     { startTime: '21:30', endTime: '06:30', type: 'sleep', activity: '晚安入睡' },
                     { startTime: '06:30', endTime: '07:00', type: 'sleep', activity: '起床洗漱' },
                     { startTime: '07:00', endTime: '08:00', type: 'exercise', activity: '晨间锻炼' },
-                    { startTime: '08:00', endTime: '08:30', type: 'meal', activity: '营养早餐' },
+                    { startTime: '08:00', endTime: '08:30', type: 'meal', activity: '早餐时间' },
                     { startTime: '08:30', endTime: '10:00', type: 'rest', activity: '休闲阅读' },
                     { startTime: '10:00', endTime: '11:00', type: 'rest', activity: '兴趣爱好' },
-                    { startTime: '11:00', endTime: '12:00', type: 'meal', activity: '午餐时光' },
+                    { startTime: '11:00', endTime: '12:00', type: 'meal', activity: '午餐时间' },
                     { startTime: '12:00', endTime: '14:00', type: 'sleep', activity: '午休小憩' },
                     { startTime: '14:00', endTime: '15:00', type: 'exercise', activity: '午后散步' },
                     { startTime: '15:00', endTime: '17:00', type: 'rest', activity: '休闲活动' },
-                    { startTime: '17:00', endTime: '18:00', type: 'meal', activity: '健康晚餐' },
+                    { startTime: '17:00', endTime: '18:00', type: 'meal', activity: '晚餐时间' },
                     { startTime: '18:00', endTime: '20:00', type: 'rest', activity: '晚间休闲' },
                     { startTime: '20:00', endTime: '21:30', type: 'rest', activity: '睡前放松' }
                 ],
@@ -565,13 +1034,13 @@
                     { startTime: '22:00', endTime: '07:00', type: 'sleep', activity: '晚安入睡' },
                     { startTime: '07:00', endTime: '07:30', type: 'sleep', activity: '起床洗漱' },
                     { startTime: '07:30', endTime: '08:30', type: 'exercise', activity: '晨间锻炼' },
-                    { startTime: '08:30', endTime: '09:30', type: 'meal', activity: '营养早餐' },
+                    { startTime: '08:30', endTime: '09:30', type: 'meal', activity: '早餐时间' },
                     { startTime: '09:30', endTime: '11:30', type: 'rest', activity: '公园漫步' },
-                    { startTime: '11:30', endTime: '12:30', type: 'meal', activity: '午餐时光' },
-                    { startTime: '12:30', endTime: '15:00', type: 'sleep', activity: '午休小憩' },
+                    { startTime: '11:30', endTime: '12:30', type: 'meal', activity: '午餐时间' },
+                    { startTime: '12:30', endTime: '15:00', type: 'rest', activity: '午休小憩' },
                     { startTime: '15:00', endTime: '17:00', type: 'rest', activity: '户外活动' },
                     { startTime: '17:00', endTime: '18:00', type: 'exercise', activity: '运动健身' },
-                    { startTime: '18:00', endTime: '19:00', type: 'meal', activity: '健康晚餐' },
+                    { startTime: '18:00', endTime: '19:00', type: 'meal', activity: '晚餐时间' },
                     { startTime: '19:00', endTime: '21:00', type: 'rest', activity: '晚间休闲' },
                     { startTime: '21:00', endTime: '22:00', type: 'rest', activity: '睡前放松' }
                 ]
@@ -580,25 +1049,25 @@
                 weekday: [
                     { startTime: '23:30', endTime: '08:00', type: 'sleep', activity: '晚安入睡' },
                     { startTime: '08:00', endTime: '08:30', type: 'sleep', activity: '起床洗漱' },
-                    { startTime: '08:30', endTime: '09:00', type: 'meal', activity: '营养早餐' },
+                    { startTime: '08:30', endTime: '09:00', type: 'meal', activity: '早餐时间' },
                     { startTime: '09:00', endTime: '12:00', type: 'work', activity: '上午工作' },
-                    { startTime: '12:00', endTime: '13:00', type: 'meal', activity: '午餐时光' },
+                    { startTime: '12:00', endTime: '13:00', type: 'meal', activity: '午餐时间' },
                     { startTime: '13:00', endTime: '14:00', type: 'rest', activity: '午休小憩' },
                     { startTime: '14:00', endTime: '18:00', type: 'work', activity: '下午工作' },
-                    { startTime: '18:00', endTime: '19:00', type: 'meal', activity: '健康晚餐' },
+                    { startTime: '18:00', endTime: '19:00', type: 'meal', activity: '晚餐时间' },
                     { startTime: '19:00', endTime: '22:00', type: 'work', activity: '晚间工作' },
                     { startTime: '22:00', endTime: '23:30', type: 'rest', activity: '放松休息' }
                 ],
                 weekend: [
                     { startTime: '24:00', endTime: '09:00', type: 'sleep', activity: '晚安入睡' },
                     { startTime: '09:00', endTime: '09:30', type: 'sleep', activity: '起床洗漱' },
-                    { startTime: '09:30', endTime: '10:30', type: 'meal', activity: '营养早餐' },
+                    { startTime: '09:30', endTime: '10:30', type: 'meal', activity: '早餐时间' },
                     { startTime: '10:30', endTime: '12:30', type: 'work', activity: '轻量工作' },
-                    { startTime: '12:30', endTime: '13:30', type: 'meal', activity: '午餐时光' },
-                    { startTime: '13:30', endTime: '15:30', type: 'sleep', activity: '午休小憩' },
+                    { startTime: '12:30', endTime: '13:30', type: 'meal', activity: '午餐时间' },
+                    { startTime: '13:30', endTime: '15:30', type: 'rest', activity: '午休小憩' },
                     { startTime: '15:30', endTime: '17:30', type: 'rest', activity: '户外活动' },
                     { startTime: '17:30', endTime: '18:30', type: 'exercise', activity: '运动健身' },
-                    { startTime: '18:30', endTime: '19:30', type: 'meal', activity: '健康晚餐' },
+                    { startTime: '18:30', endTime: '19:30', type: 'meal', activity: '晚餐时间' },
                     { startTime: '19:30', endTime: '22:30', type: 'rest', activity: '休闲娱乐' },
                     { startTime: '22:30', endTime: '24:00', type: 'rest', activity: '睡前放松' }
                 ]
@@ -607,26 +1076,26 @@
                 weekday: [
                     { startTime: '24:00', endTime: '09:00', type: 'sleep', activity: '晚安入睡' },
                     { startTime: '09:00', endTime: '09:30', type: 'sleep', activity: '起床洗漱' },
-                    { startTime: '09:30', endTime: '10:30', type: 'meal', activity: '营养早餐' },
+                    { startTime: '09:30', endTime: '10:30', type: 'meal', activity: '早餐时间' },
                     { startTime: '10:30', endTime: '12:00', type: 'rest', activity: '休闲活动' },
-                    { startTime: '12:00', endTime: '13:00', type: 'meal', activity: '午餐时光' },
+                    { startTime: '12:00', endTime: '13:00', type: 'meal', activity: '午餐时间' },
                     { startTime: '13:00', endTime: '15:00', type: 'sleep', activity: '午休小憩' },
                     { startTime: '15:00', endTime: '17:00', type: 'rest', activity: '午后活动' },
                     { startTime: '17:00', endTime: '18:00', type: 'exercise', activity: '运动健身' },
-                    { startTime: '18:00', endTime: '19:00', type: 'meal', activity: '健康晚餐' },
+                    { startTime: '18:00', endTime: '19:00', type: 'meal', activity: '晚餐时间' },
                     { startTime: '19:00', endTime: '22:00', type: 'rest', activity: '晚间娱乐' },
                     { startTime: '22:00', endTime: '24:00', type: 'rest', activity: '睡前放松' }
                 ],
                 weekend: [
                     { startTime: '24:00', endTime: '10:00', type: 'sleep', activity: '晚安入睡' },
                     { startTime: '10:00', endTime: '10:30', type: 'sleep', activity: '起床洗漱' },
-                    { startTime: '10:30', endTime: '11:30', type: 'meal', activity: '营养早餐' },
+                    { startTime: '10:30', endTime: '11:30', type: 'meal', activity: '早餐时间' },
                     { startTime: '11:30', endTime: '13:00', type: 'rest', activity: '外出游玩' },
-                    { startTime: '13:00', endTime: '14:00', type: 'meal', activity: '午餐时光' },
-                    { startTime: '14:00', endTime: '16:00', type: 'sleep', activity: '午休小憩' },
+                    { startTime: '13:00', endTime: '14:00', type: 'meal', activity: '午餐时间' },
+                    { startTime: '14:00', endTime: '16:00', type: 'rest', activity: '午休小憩' },
                     { startTime: '16:00', endTime: '18:00', type: 'rest', activity: '户外活动' },
                     { startTime: '18:00', endTime: '19:00', type: 'exercise', activity: '运动健身' },
-                    { startTime: '19:00', endTime: '20:00', type: 'meal', activity: '健康晚餐' },
+                    { startTime: '19:00', endTime: '20:00', type: 'meal', activity: '晚餐时间' },
                     { startTime: '20:00', endTime: '23:00', type: 'rest', activity: '晚间娱乐' },
                     { startTime: '23:00', endTime: '24:00', type: 'rest', activity: '睡前放松' }
                 ]
@@ -642,22 +1111,18 @@
                 { text: '整理学习笔记', completed: false }
             ],
             gaokao: [
-                { text: '完成数学模拟卷', completed: false },
-                { text: '背诵语文古诗文', completed: false },
-                { text: '复习英语单词', completed: false },
+                { text: '数学专题练习', completed: false },
+                { text: '英语单词50个', completed: false },
+                { text: '语文阅读理解', completed: false },
                 { text: '整理错题本', completed: false },
-                { text: '练习理综选择题', completed: false },
-                { text: '限时模拟考试', completed: false },
-                { text: '分析试卷错误', completed: false }
+                { text: '晚间复盘总结', completed: false }
             ],
             graduate: [
                 { text: '背诵考研英语单词', completed: false },
                 { text: '完成政治选择题', completed: false },
                 { text: '练习数学真题', completed: false },
                 { text: '复习专业课', completed: false },
-                { text: '整理笔记框架', completed: false },
-                { text: '全真模拟考试', completed: false },
-                { text: '分析薄弱环节', completed: false }
+                { text: '整理笔记框架', completed: false }
             ],
             office_advance: [
                 { text: '完成工作报告', completed: false },
@@ -703,19 +1168,18 @@
         let meditationInterval = null;
         let isMeditating = false;
         let isBreathing = false;
-        let waterCount = 4;
-        const waterGoal = 8;
+        let waterCount = 0;
+        const waterGoal = 10;
         let editingIndex = -1;
         
         function initApp() {
-            console.log('===== initApp CALLED =====');
             try {
                 localStorage.removeItem('healingSchedule');
                 for (let i = 0; i < 7; i++) {
-                    schedules[i] = JSON.parse(JSON.stringify(schedulesData.relax_study.weekday));
+                    schedules[i] = JSON.parse(JSON.stringify(schedulesData.gaokao.weekday));
                 }
-                todoList = JSON.parse(JSON.stringify(todoData.relax_study));
-                waterCount = 4;
+                todoList = JSON.parse(JSON.stringify(todoData.gaokao));
+                waterCount = 0;
                 
                 updateScheduleGrid();
                 renderTimeSlots();
@@ -723,10 +1187,8 @@
                 updateWaterDisplay();
                 updateStats();
                 showToast('✅ 初始化完成');
-                console.log('===== initApp SUCCESS =====');
             } catch(e) {
                 console.error('initApp FAILED:', e);
-                showToast('❌ 初始化失败: ' + e.message);
             }
         }
         
@@ -746,17 +1208,23 @@
         function updateScheduleGrid() {
             const today = new Date();
             const dayOfWeek = today.getDay() || 7;
-            const cards = document.querySelectorAll('.day-card');
-            cards.forEach((card, index) => {
+            const container = document.getElementById('scheduleGrid');
+            if (!container) return;
+            container.innerHTML = '';
+            
+            const dayNames = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+            
+            for (let i = 0; i < 7; i++) {
                 const date = new Date(today);
-                date.setDate(today.getDate() + (index - (dayOfWeek - 1)));
-                card.querySelector('.day-date').textContent = date.getDate();
-                if (index === dayOfWeek - 1) {
-                    cards.forEach(c => c.classList.remove('active'));
-                    card.classList.add('active');
-                    currentDay = index;
-                }
-            });
+                date.setDate(today.getDate() + (i - (dayOfWeek - 1)));
+                const div = document.createElement('div');
+                div.className = 'day-card' + (i === dayOfWeek - 1 ? ' active' : '');
+                div.onclick = function() { selectDay(i); };
+                div.innerHTML = '<div class="day-name">' + dayNames[i] + '</div><div class="day-date">' + date.getMonth() + 1 + '/' + date.getDate() + '</div><div class="day-num">' + (date.getDate()) + '</div>';
+                container.appendChild(div);
+            }
+            
+            currentDay = dayOfWeek - 1;
         }
         
         function selectDay(day) {
@@ -764,6 +1232,8 @@
             cards.forEach(c => c.classList.remove('active'));
             cards[day].classList.add('active');
             currentDay = day;
+            const dayNames = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+            document.getElementById('currentDayTitle').textContent = dayNames[day];
             renderTimeSlots();
             updateStats();
         }
@@ -783,18 +1253,19 @@
         
         function renderTimeSlots() {
             const container = document.getElementById('timeSlots');
-            if (!container) {
-                console.error('timeSlots container not found');
-                return;
-            }
+            if (!container) return;
             container.innerHTML = '';
             const slots = schedules[currentDay] || [];
             
             slots.forEach((slot, index) => {
                 const div = document.createElement('div');
                 div.className = 'time-slot ' + slot.type;
-                div.innerHTML = '<div class="icon">' + getIcon(slot.type) + '</div><div class="time">' + slot.startTime + ' - ' + slot.endTime + '</div><div class="activity">' + slot.activity + '</div><div class="delete-btn" onclick="deleteSlot(' + index + ')">✕</div>';
-                div.addEventListener('click', function() { openEditModal(index); });
+                div.innerHTML = '<div class="icon">' + getIcon(slot.type) + '</div><div class="time">' + slot.startTime + '~' + slot.endTime + '</div><div class="activity">' + slot.activity + '</div><div class="check-box" onclick="toggleSlotComplete(' + index + ')"></div>';
+                div.addEventListener('click', function(e) {
+                    if (!e.target.classList.contains('check-box')) {
+                        openEditModal(index);
+                    }
+                });
                 container.appendChild(div);
             });
             
@@ -830,6 +1301,12 @@
             renderTodoList();
             showToast('📝 已更新推荐任务');
             
+            updateStats();
+        }
+        
+        function toggleSlotComplete(index) {
+            const slots = document.querySelectorAll('.time-slot');
+            slots[index].classList.toggle('completed');
             updateStats();
         }
         
@@ -891,16 +1368,17 @@
             todoList.forEach((item, index) => {
                 const div = document.createElement('div');
                 div.className = 'todo-item' + (item.completed ? ' completed' : '');
-                div.innerHTML = '<div class="todo-checkbox' + (item.completed ? ' completed' : '') + '" onclick="toggleTodo(' + index + ')"></div><div class="todo-text">' + item.text + '</div><div class="todo-delete" onclick="deleteTodo(' + index + ')">✕</div>';
+                div.innerHTML = '<div class="todo-checkbox' + (item.completed ? ' completed' : '') + '" onclick="toggleTodo(' + index + ')"></div><div class="todo-text">' + item.text + '</div><div class="todo-delete" onclick="deleteTodo(' + index + ')">&times;</div>';
                 container.appendChild(div);
             });
         }
         
         function addTodo() {
-            const text = document.getElementById('newTodo').value.trim();
+            const input = document.getElementById('newTodo');
+            const text = input.value.trim();
             if (text) {
-                todoList.push({ text: text, completed: false });
-                document.getElementById('newTodo').value = '';
+                todoList.push({ text, completed: false });
+                input.value = '';
                 renderTodoList();
                 updateStats();
                 showToast('➕ 已添加任务');
@@ -921,150 +1399,145 @@
         }
         
         function toggleMeditation() {
+            const btn = document.getElementById('meditationBtn');
             if (isMeditating) {
                 clearInterval(meditationInterval);
-                document.getElementById('playBtn').textContent = '▶';
+                isMeditating = false;
+                btn.textContent = '继续冥想';
                 showToast('⏸️ 冥想已暂停');
             } else {
-                if (meditationTime <= 0) meditationTime = 300;
-                document.getElementById('playBtn').textContent = '⏸';
-                showToast('🧘 开始冥想');
-                meditationInterval = setInterval(() => {
+                isMeditating = true;
+                btn.textContent = '暂停冥想';
+                showToast('🎵 开始冥想');
+                meditationInterval = setInterval(function() {
                     if (meditationTime > 0) {
                         meditationTime--;
-                        updateMeditationDisplay();
+                        const minutes = Math.floor(meditationTime / 60);
+                        const seconds = meditationTime % 60;
+                        document.getElementById('meditationTime').textContent = 
+                            minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
                     } else {
                         clearInterval(meditationInterval);
                         isMeditating = false;
-                        document.getElementById('playBtn').textContent = '▶';
+                        btn.textContent = '开始冥想';
                         showToast('🎉 冥想完成！');
                     }
                 }, 1000);
             }
-            isMeditating = !isMeditating;
+        }
+        
+        function setMeditationTime(minutes) {
+            clearInterval(meditationInterval);
+            isMeditating = false;
+            meditationTime = minutes * 60;
+            const m = Math.floor(meditationTime / 60);
+            const s = meditationTime % 60;
+            document.getElementById('meditationTime').textContent = 
+                m.toString().padStart(2, '0') + ':' + s.toString().padStart(2, '0');
+            document.getElementById('meditationBtn').textContent = '开始冥想';
         }
         
         function resetMeditation() {
             clearInterval(meditationInterval);
             isMeditating = false;
             meditationTime = 300;
-            document.getElementById('playBtn').textContent = '▶';
-            updateMeditationDisplay();
-        }
-        
-        function setMeditationTime(minutes) {
-            document.querySelectorAll('.meditation-preset').forEach(b => b.classList.remove('active'));
-            event.target.classList.add('active');
-            meditationTime = minutes * 60;
-            updateMeditationDisplay();
-        }
-        
-        function updateMeditationDisplay() {
-            const mins = Math.floor(meditationTime / 60);
-            const secs = meditationTime % 60;
-            document.getElementById('meditationTime').textContent = mins.toString().padStart(2, '0') + ':' + secs.toString().padStart(2, '0');
-        }
-        
-        function toggleBreathing() {
-            if (isBreathing) {
-                isBreathing = false;
-                document.getElementById('breathBtn').textContent = '开始练习';
-                showToast('⏸️ 呼吸练习已暂停');
-            } else {
-                isBreathing = true;
-                document.getElementById('breathBtn').textContent = '停止练习';
-                showToast('🌬️ 开始呼吸练习');
-                runBreathingCycle();
-            }
-        }
-        
-        function runBreathingCycle() {
-            if (!isBreathing) return;
-            const breatheText = document.getElementById('breathText');
-            breatheText.textContent = '吸气';
-            setTimeout(() => {
-                if (!isBreathing) return;
-                breatheText.textContent = '呼气';
-                setTimeout(() => {
-                    if (!isBreathing) return;
-                    runBreathingCycle();
-                }, 4000);
-            }, 4000);
+            document.getElementById('meditationTime').textContent = '05:00';
+            document.getElementById('meditationBtn').textContent = '开始冥想';
+            showToast('🔄 冥想已重置');
         }
         
         function addWater() {
             if (waterCount < waterGoal) {
                 waterCount++;
                 updateWaterDisplay();
+                showToast('💧 已喝一杯水（' + (waterCount * 200) + 'ml）');
                 if (waterCount === waterGoal) {
-                    showToast('🎉 恭喜！今日喝水目标已达成！');
+                    showToast('🎉 今日喝水目标已达成！');
                 }
+            } else {
+                showToast('🎉 今日喝水目标已达成！');
             }
         }
         
         function resetWater() {
             waterCount = 0;
             updateWaterDisplay();
-            showToast('🔄 已重置喝水记录');
+            showToast('🔄 喝水量已清零');
         }
         
         function updateWaterDisplay() {
-            const percentage = (waterCount / waterGoal) * 100;
-            document.getElementById('waterLevel').style.height = percentage + '%';
-            document.getElementById('waterCount').textContent = waterCount + '/' + waterGoal + ' 杯';
+            const amount = waterCount * 200;
+            const goal = waterGoal * 200;
+            const percentage = Math.round((waterCount / waterGoal) * 100);
+            document.getElementById('waterAmount').textContent = amount;
+            document.getElementById('waterBar').style.width = percentage + '%';
+            document.getElementById('statWater').textContent = percentage + '%';
+            
+            const hint = document.getElementById('waterHint');
+            if (waterCount === 0) {
+                hint.textContent = '今天记得喝水哦！';
+            } else if (waterCount < 4) {
+                hint.textContent = '继续加油，保持喝水习惯！';
+            } else if (waterCount < 8) {
+                hint.textContent = '再接再厉，已经完成一半啦！';
+            } else if (waterCount < waterGoal) {
+                hint.textContent = '马上就达标了，继续努力！';
+            } else {
+                hint.textContent = '🎉 太棒了，今日目标已达成！';
+            }
         }
         
         function updateStats() {
-            const completedCount = todoList.filter(t => t.completed).length;
-            const totalCount = todoList.length;
-            const taskRate = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
-            document.getElementById('statTaskRate').textContent = taskRate + '%';
+            const completedTasks = todoList.filter(t => t.completed).length;
+            document.getElementById('statTaskRate').textContent = completedTasks + '/' + todoList.length;
             
             const slots = schedules[currentDay] || [];
-            let workTime = 0, sleepTime = 0, exerciseTime = 0, mealTime = 0, restTime = 0;
+            let studyMinutes = 0, workMinutes = 0, sleepMinutes = 0, exerciseMinutes = 0, mealMinutes = 0, restMinutes = 0;
             
             slots.forEach(slot => {
                 const start = slot.startTime;
                 const end = slot.endTime;
-                let startMinutes = parseInt(start.split(':')[0]) * 60 + parseInt(start.split(':')[1]);
-                let endMinutes = parseInt(end.split(':')[0]) * 60 + parseInt(end.split(':')[1]);
-                if (endMinutes < startMinutes) endMinutes += 24 * 60;
-                const duration = endMinutes - startMinutes;
+                const duration = calculateDuration(start, end);
                 
                 switch(slot.type) {
-                    case 'study':
-                    case 'work':
-                        workTime += duration;
-                        break;
-                    case 'sleep':
-                        sleepTime += duration;
-                        break;
-                    case 'exercise':
-                        exerciseTime += duration;
-                        break;
-                    case 'meal':
-                        mealTime += duration;
-                        break;
-                    case 'rest':
-                        restTime += duration;
-                        break;
+                    case 'study': studyMinutes += duration; break;
+                    case 'work': workMinutes += duration; break;
+                    case 'sleep': sleepMinutes += duration; break;
+                    case 'exercise': exerciseMinutes += duration; break;
+                    case 'meal': mealMinutes += duration; break;
+                    case 'rest': restMinutes += duration; break;
                 }
             });
             
-            document.getElementById('statWorkTime').textContent = (workTime / 60).toFixed(1) + 'h';
-            document.getElementById('statSleepTime').textContent = (sleepTime / 60).toFixed(1) + 'h';
-            document.getElementById('statExerciseTime').textContent = exerciseTime + 'min';
-            document.getElementById('statMealTime').textContent = (mealTime / 60).toFixed(1) + 'h';
-            document.getElementById('statRestTime').textContent = (restTime / 60).toFixed(1) + 'h';
+            const totalMinutes = studyMinutes + workMinutes + exerciseMinutes;
+            document.getElementById('statWorkTime').textContent = (totalMinutes / 60).toFixed(1) + 'h';
+            document.getElementById('statStudyTime').textContent = (studyMinutes / 60).toFixed(1) + 'h';
+            document.getElementById('statWorkTime2').textContent = (workMinutes / 60).toFixed(1) + 'h';
+            document.getElementById('statSleepTime').textContent = (sleepMinutes / 60).toFixed(1) + 'h';
+            document.getElementById('statExerciseTime').textContent = (exerciseMinutes / 60).toFixed(1) + 'h';
+            document.getElementById('statMealTime').textContent = (mealMinutes / 60).toFixed(1) + 'h';
+            document.getElementById('statRestTime').textContent = (restMinutes / 60).toFixed(1) + 'h';
         }
         
-        function showToast(msg) {
+        function calculateDuration(start, end) {
+            const [startHour, startMin] = start.split(':').map(Number);
+            const [endHour, endMin] = end.split(':').map(Number);
+            
+            let startTotal = startHour * 60 + startMin;
+            let endTotal = endHour * 60 + endMin;
+            
+            if (endTotal < startTotal) {
+                endTotal += 24 * 60;
+            }
+            
+            return endTotal - startTotal;
+        }
+        
+        function showToast(message) {
             const toast = document.getElementById('toast');
-            toast.textContent = msg;
+            toast.textContent = message;
             toast.classList.add('show');
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 2000);
+            setTimeout(() => toast.classList.remove('show'), 2000);
         }
         
         document.addEventListener('DOMContentLoaded', initApp);
